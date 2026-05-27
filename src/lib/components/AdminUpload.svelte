@@ -1,11 +1,15 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { games, addGame } from '$lib/state/games.svelte';
+	import { games, addGame, removeGame, clearGames } from '$lib/state/games.svelte';
+	import { profile } from '$lib/state/profile.svelte';
+	import { settings, setUseMockBgg } from '$lib/state/settings.svelte';
+	import { searchGames, fetchGame } from '$lib/bgg';
 	import type { BggSearchResult, Game } from '$lib/types';
 	import Header from './Header.svelte';
 	import Button from './Button.svelte';
 	import StatsRow from './StatsRow.svelte';
 	import GradientFade from './GradientFade.svelte';
+	import NavPill from './NavPill.svelte';
 
 	// A small rotation of background tints used for the game card hero (matches design).
 	const HERO_COLORS = [
@@ -30,6 +34,15 @@
 	let addingId = $state<number | null>(null);
 	let addError = $state<string | null>(null);
 
+	// Admin-only guard. Non-admin profiles get bounced to /swipe; no profile → back to picker.
+	$effect(() => {
+		if (!profile.id) {
+			goto('/');
+		} else if (!profile.isAdmin) {
+			goto('/swipe');
+		}
+	});
+
 	let debounce: ReturnType<typeof setTimeout> | undefined;
 
 	$effect(() => {
@@ -50,14 +63,11 @@
 	async function runSearch(q: string) {
 		searchError = null;
 		try {
-			const r = await fetch(
-				`/api/bgg/search?query=${encodeURIComponent(q)}&type=boardgame`
-			);
-			if (!r.ok) throw new Error(`HTTP ${r.status}`);
-			const data = (await r.json()) as { results?: BggSearchResult[] };
-			results = data.results ?? [];
+			results = await searchGames(q);
 		} catch {
-			searchError = "Couldn't reach BGG — try again later";
+			searchError = settings.useMockBgg
+				? 'Mock search failed'
+				: "Couldn't reach BGG — try again later";
 			results = [];
 		} finally {
 			searching = false;
@@ -68,17 +78,15 @@
 		addingId = r.id;
 		addError = null;
 		try {
-			const res = await fetch(`/api/bgg/thing?id=${r.id}&stats=1`);
-			if (!res.ok) throw new Error(`HTTP ${res.status}`);
-			const data = (await res.json()) as { games?: Game[] };
-			const g = data.games?.[0];
-			if (!g) throw new Error('No game returned');
+			const g = await fetchGame(r.id);
 			addGame(g);
 			// Clear the search so the catalog shows through.
 			query = '';
 			results = [];
 		} catch {
-			addError = "Couldn't reach BGG — try again later";
+			addError = settings.useMockBgg
+				? "Couldn't load mock game"
+				: "Couldn't reach BGG — try again later";
 		} finally {
 			addingId = null;
 		}
@@ -107,6 +115,12 @@
 		history.length > 1 ? history.back() : goto('/');
 	}
 
+	function confirmClearCatalog() {
+		if (catalogCount === 0) return;
+		if (!confirm(`Remove all ${catalogCount} games from the catalog?`)) return;
+		clearGames();
+	}
+
 	let catalogCount = $derived(games.catalog.length);
 	let canStart = $derived(catalogCount > 0);
 </script>
@@ -120,11 +134,18 @@
 			</div>
 		{/snippet}
 		{#snippet trailing()}
+			<div class="data-toggle" role="group" aria-label="Data source">
+				<NavPill active={settings.useMockBgg} onclick={() => setUseMockBgg(true)}>
+					Mock
+				</NavPill>
+				<NavPill active={!settings.useMockBgg} onclick={() => setUseMockBgg(false)}>
+					Live
+				</NavPill>
+			</div>
 			<button class="back" type="button" onclick={goBack}>
 				<span class="back__arrow" aria-hidden="true">&larr;</span>
 				Back
 			</button>
-			<span class="avatar" aria-hidden="true"></span>
 		{/snippet}
 	</Header>
 
@@ -140,10 +161,15 @@
 					<span class="search__icon" aria-hidden="true">+</span>
 					<input
 						type="text"
-						placeholder="Search BoardGameGeek to add a game…"
+						placeholder={settings.useMockBgg
+							? 'Search the mock catalog (Catan, Wingspan, Azul…)'
+							: 'Search BoardGameGeek to add a game…'}
 						bind:value={query}
 						aria-label="Search BoardGameGeek"
 					/>
+					{#if settings.useMockBgg}
+						<span class="search__source-chip" title="Mock data — toggle Live in the header to use real BGG">MOCK</span>
+					{/if}
 					{#if searching}
 						<span class="search__hint">Searching…</span>
 					{/if}
@@ -185,7 +211,14 @@
 						<h2 class="games__title">Tonight's Games</h2>
 						<span class="games__count">{catalogCount}</span>
 					</div>
-					<span class="games__sort">Sorted by added</span>
+					<div class="games__head-meta">
+						<span class="games__sort">Sorted by added</span>
+						{#if catalogCount > 0}
+							<button type="button" class="games__clear" onclick={confirmClearCatalog}>
+								Clear all
+							</button>
+						{/if}
+					</div>
 				</div>
 
 				{#if catalogCount === 0}
@@ -197,28 +230,54 @@
 				{:else}
 					<div class="grid">
 						{#each games.catalog as g, i (g.id)}
-							<article class="card">
-								<div class="card__hero" style:background={heroColor(g.id, i)}>
-									{#if g.thumbnail || g.image}
-										<img
-											src={g.thumbnail ?? g.image}
-											alt=""
-											class="card__img"
-											loading="lazy"
-										/>
-									{/if}
-									{#if g.categories && g.categories.length > 0}
-										<span class="card__chip">{g.categories[0]}</span>
-									{/if}
-									<div class="card__shade" aria-hidden="true"></div>
-								</div>
-								<div class="card__body">
-									<div class="card__title-row">
-										<h3 class="card__title">{g.name}</h3>
-									</div>
-									<StatsRow items={statsFor(g)} />
-								</div>
-							</article>
+							<div class="card-cell">
+								<a class="card-link" href={`/game/${g.id}`} aria-label="View details for {g.name}">
+									<article class="card">
+										<div class="card__hero" style:background={heroColor(g.id, i)}>
+											{#if g.thumbnail || g.image}
+												<img
+													src={g.thumbnail ?? g.image}
+													alt=""
+													class="card__img"
+													loading="lazy"
+												/>
+											{/if}
+											{#if g.categories && g.categories.length > 0}
+												<span class="card__chip">{g.categories[0]}</span>
+											{/if}
+											<div class="card__shade" aria-hidden="true"></div>
+										</div>
+										<div class="card__body">
+											<div class="card__title-row">
+												<h3 class="card__title">{g.name}</h3>
+											</div>
+											<StatsRow items={statsFor(g)} />
+										</div>
+									</article>
+								</a>
+								<button
+									type="button"
+									class="card-remove"
+									aria-label="Remove {g.name} from catalog"
+									title="Remove from catalog"
+									onclick={() => removeGame(g.id)}
+								>
+									<svg
+										viewBox="0 0 24 24"
+										width="14"
+										height="14"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="2.5"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										aria-hidden="true"
+									>
+										<path d="M18 6L6 18" />
+										<path d="M6 6l12 12" />
+									</svg>
+								</button>
+							</div>
 						{/each}
 					</div>
 				{/if}
@@ -240,7 +299,7 @@
 	.page {
 		display: flex;
 		flex-direction: column;
-		min-height: 100vh;
+		min-height: calc(100vh - var(--nav-height));
 		background: var(--surface-primary);
 	}
 
@@ -262,6 +321,14 @@
 		color: var(--foreground-primary);
 	}
 
+	.data-toggle {
+		display: inline-flex;
+		gap: 4px;
+		padding: 4px;
+		background: var(--surface-secondary);
+		border-radius: var(--radius-pill);
+	}
+
 	.back {
 		display: inline-flex;
 		align-items: center;
@@ -281,15 +348,6 @@
 	}
 	.back__arrow {
 		font-size: var(--text-sm);
-	}
-
-	.avatar {
-		width: 36px;
-		height: 36px;
-		border-radius: var(--radius-pill);
-		background: var(--decor-purple);
-		border: 2px solid var(--surface-primary);
-		box-shadow: 0 0 0 1px var(--border-subtle);
 	}
 
 	.scroll {
@@ -371,6 +429,16 @@
 		font-family: var(--font-caption);
 		font-size: var(--text-xs);
 		color: var(--foreground-tertiary);
+	}
+	.search__source-chip {
+		padding: 3px 8px;
+		border-radius: var(--radius-pill);
+		background: var(--decor-cream);
+		color: #9a6f1f;
+		font-family: var(--font-caption);
+		font-size: var(--text-xs);
+		font-weight: var(--font-weight-semibold);
+		letter-spacing: 0.6px;
 	}
 	.search__error {
 		margin: 0;
@@ -461,10 +529,59 @@
 		font-weight: var(--font-weight-semibold);
 		border-radius: var(--radius-pill);
 	}
+	.games__head-meta {
+		display: inline-flex;
+		align-items: center;
+		gap: 12px;
+	}
 	.games__sort {
 		font-family: var(--font-caption);
 		font-size: var(--text-xs);
 		color: var(--foreground-tertiary);
+	}
+	.games__clear {
+		background: transparent;
+		border: 0;
+		padding: 4px 8px;
+		font-family: var(--font-body);
+		font-size: var(--text-xs);
+		font-weight: var(--font-weight-medium);
+		color: var(--danger);
+		cursor: pointer;
+		border-radius: var(--radius-md);
+	}
+	.games__clear:hover {
+		background: var(--surface-secondary);
+	}
+
+	.card-cell {
+		position: relative;
+	}
+	.card-remove {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		width: 28px;
+		height: 28px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: var(--radius-pill);
+		border: 0;
+		background: rgba(255, 255, 255, 0.92);
+		color: var(--foreground-secondary);
+		cursor: pointer;
+		opacity: 0;
+		transition: opacity 0.12s ease, color 0.12s ease, background 0.12s ease;
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+	}
+	.card-cell:hover .card-remove,
+	.card-remove:focus-visible {
+		opacity: 1;
+	}
+	.card-remove:hover {
+		color: var(--danger);
+		background: var(--surface-primary);
 	}
 
 	.empty {
@@ -500,6 +617,25 @@
 		}
 	}
 
+	.card-link {
+		display: block;
+		text-decoration: none;
+		color: inherit;
+		transition: transform 0.12s ease, box-shadow 0.12s ease;
+	}
+	.card-link:hover .card,
+	.card-link:focus-visible .card {
+		transform: translateY(-2px);
+		box-shadow:
+			0 6px 10px rgba(0, 0, 0, 0.05),
+			0 22px 48px rgba(0, 0, 0, 0.09);
+	}
+	.card-link:focus-visible {
+		outline: 2px solid var(--accent-primary);
+		outline-offset: 4px;
+		border-radius: var(--radius-lg);
+	}
+
 	.card {
 		display: flex;
 		flex-direction: column;
@@ -510,6 +646,7 @@
 		box-shadow:
 			0 4px 6px rgba(0, 0, 0, 0.03),
 			0 16px 40px rgba(0, 0, 0, 0.07);
+		transition: transform 0.12s ease, box-shadow 0.12s ease;
 	}
 	.card__hero {
 		position: relative;

@@ -1,10 +1,16 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { getGame } from '$lib/state/games.svelte';
+	import { profile } from '$lib/state/profile.svelte';
 	import Button from './Button.svelte';
 	import StatsRow from './StatsRow.svelte';
 
 	let { id }: { id: number } = $props();
+
+	// Bounce to the picker if no active profile.
+	$effect(() => {
+		if (!profile.id) goto('/');
+	});
 
 	const game = $derived(getGame(id));
 
@@ -71,7 +77,7 @@
 	const tags = $derived([...(game?.categories ?? []), ...(game?.mechanics ?? [])]);
 
 	function back() {
-		goto('/dashboard');
+		goto('/group');
 	}
 </script>
 
@@ -217,7 +223,7 @@
 
 <style>
 	.page {
-		min-height: calc(100vh - 80px);
+		min-height: calc(100vh - 80px - var(--nav-height));
 		background: var(--surface-primary);
 	}
 
@@ -464,7 +470,7 @@
 
 	/* Empty state */
 	.empty {
-		min-height: calc(100vh - 80px);
+		min-height: calc(100vh - 80px - var(--nav-height));
 		display: flex;
 		align-items: center;
 		justify-content: center;

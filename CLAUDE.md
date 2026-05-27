@@ -12,7 +12,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-Design-only. The repo has no code, no build system, no commits — just a single Pencil design file (`bg-picker.pen`) for **GameMatch**, a Tinder-style board game picker app. Any "how do I build/test/run" question doesn't apply yet.
+Working SvelteKit app under active development. **GameMatch** — Tinder-style board game picker.
+
+- **Stack**: SvelteKit + Svelte 5 (runes-only — `svelte.config.js` forces runes mode) + TypeScript + Vite. Engine-strict is off in `.npmrc` (Node 23 sits between `vite-plugin-svelte`'s supported ranges; harmless warning).
+- **7 screens** implemented as components in `src/lib/components/`, routed via `src/routes/{,profile,admin,swipe,match,group,game/[id]}/+page.svelte`.
+- **Global state**: runes-in-modules pattern in `src/lib/state/{profile,games,group,swipes}.svelte.ts`. Reads via property access, writes via exported functions. Hydrated from localStorage in `+layout.svelte`'s `$effect`.
+- **BGG proxy** at `src/routes/api/bgg/[endpoint]/+server.ts` — server-side XML parsing via `fast-xml-parser`, 202 retry, 503 backoff, token-bucket rate limiter. See `docs/bgg-api.md` for gotchas.
+- **Design source-of-truth**: `bg-picker.pen` at the repo root. Keep using the Pencil MCP for any updates.
+
+Run `npm run dev` (dev server, may use 5173 or next free port), `npm run check` (type check — must pass cleanly), `npm run build` (production build).
+
+**Known issue**: BGG XML API is currently returning HTTP 401 to this machine's IP — likely an upstream rate-limit/IP-block. The proxy code is correct and surfaces failures as `{ error: "BGG 401: ..." }`. Test from a different network when needed.
 
 ## Working with the design file
 

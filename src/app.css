@@ -52,6 +52,9 @@
   --radius-lg: 12px;
   --radius-xl: 16px;
   --radius-pill: 9999px;
+
+  /* Chrome */
+  --nav-height: 72px;
 }
 
 * { box-sizing: border-box; }
@@ -75,3 +78,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 button { font-family: inherit; }
+
+/* Reserve room at the bottom for the fixed in-app nav (rendered in +layout.svelte). */
+body {
+  padding-bottom: var(--nav-height);
+}

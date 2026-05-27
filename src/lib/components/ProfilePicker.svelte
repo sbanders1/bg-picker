@@ -1,39 +1,27 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { setProfile } from '$lib/state/profile.svelte';
-	import { group } from '$lib/state/group.svelte';
+	import { group, joinGroup } from '$lib/state/group.svelte';
+	import { SEED_PROFILES, type SeedProfile } from '$lib/profiles';
 	import Header from './Header.svelte';
 	import StatsRow from './StatsRow.svelte';
 
-	type SeedProfile = {
-		id: string;
-		name: string;
-		initial: string;
-		bg: string;
-		fg: string;
-	};
-
-	// Seed roster — matches the design frame (UbcSG). Each tile pairs a decor
-	// pastel background with a deeper sibling shade for the initial.
-	const profiles: SeedProfile[] = [
-		{ id: 'alex', name: 'Alex', initial: 'A', bg: 'var(--decor-peach)', fg: '#B85C4A' },
-		{ id: 'jordan', name: 'Jordan', initial: 'J', bg: 'var(--decor-sky)', fg: '#3F6FA8' },
-		{ id: 'sam', name: 'Sam', initial: 'S', bg: 'var(--decor-mint)', fg: '#3A8A5C' },
-		{ id: 'casey', name: 'Casey', initial: 'C', bg: 'var(--decor-cream)', fg: '#A67E2F' },
-		{ id: 'riley', name: 'Riley', initial: 'R', bg: 'var(--decor-lavender)', fg: '#7B4FA8' },
-		{ id: 'morgan', name: 'Morgan', initial: 'M', bg: 'var(--decor-cyan)', fg: '#3F8BA0' },
-		{ id: 'taylor', name: 'Taylor', initial: 'T', bg: 'var(--decor-pink)', fg: '#A8508F' }
-	];
-
-	const row1 = $derived(profiles.slice(0, 4));
-	const row2 = $derived(profiles.slice(4, 7));
+	const row1 = $derived(SEED_PROFILES.slice(0, 4));
+	const row2 = $derived(SEED_PROFILES.slice(4, 7));
 
 	const queueCount = 24;
 	const matchCount = $derived(group.matches?.length ?? 7);
 
 	function pick(p: SeedProfile) {
-		setProfile({ id: p.id, name: p.name, avatar: p.initial });
-		goto('/admin');
+		setProfile({
+			id: p.id,
+			name: p.name,
+			avatar: p.initial,
+			isAdmin: p.isAdmin ?? false
+		});
+		joinGroup(p.id);
+		// Hosts land on the catalog so they can set up the session.
+		goto(p.isAdmin ? '/admin' : '/swipe');
 	}
 
 	function addNewPlayer() {
@@ -47,28 +35,6 @@
 			<div class="brand">
 				<div class="brand__mark" aria-hidden="true"></div>
 				<span class="brand__name">GameMatch</span>
-			</div>
-		{/snippet}
-		{#snippet trailing()}
-			<div class="host-pill" aria-label="Host mode">
-				<svg
-					class="host-pill__icon"
-					viewBox="0 0 24 24"
-					width="14"
-					height="14"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					aria-hidden="true"
-				>
-					<circle cx="12" cy="12" r="3" />
-					<path
-						d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
-					/>
-				</svg>
-				<span>Host</span>
 			</div>
 		{/snippet}
 	</Header>
@@ -85,8 +51,20 @@
 					<button class="tile" type="button" onclick={() => pick(p)}>
 						<span class="avatar" style:background={p.bg}>
 							<span class="avatar__initial" style:color={p.fg}>{p.initial}</span>
+							{#if p.isAdmin}
+								<span class="avatar__crown" aria-hidden="true" title="Host">
+									<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+										<path d="M5 18h14v2H5v-2zm0-10l3.5 4L12 5l3.5 7L19 8v8H5V8z" />
+									</svg>
+								</span>
+							{/if}
 						</span>
-						<span class="tile__name">{p.name}</span>
+						<span class="tile__name-row">
+							<span class="tile__name">{p.name}</span>
+							{#if p.isAdmin}
+								<span class="tile__role">HOST</span>
+							{/if}
+						</span>
 					</button>
 				{/each}
 			</div>
@@ -95,8 +73,20 @@
 					<button class="tile" type="button" onclick={() => pick(p)}>
 						<span class="avatar" style:background={p.bg}>
 							<span class="avatar__initial" style:color={p.fg}>{p.initial}</span>
+							{#if p.isAdmin}
+								<span class="avatar__crown" aria-hidden="true" title="Host">
+									<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+										<path d="M5 18h14v2H5v-2zm0-10l3.5 4L12 5l3.5 7L19 8v8H5V8z" />
+									</svg>
+								</span>
+							{/if}
 						</span>
-						<span class="tile__name">{p.name}</span>
+						<span class="tile__name-row">
+							<span class="tile__name">{p.name}</span>
+							{#if p.isAdmin}
+								<span class="tile__role">HOST</span>
+							{/if}
+						</span>
 					</button>
 				{/each}
 				<button class="tile" type="button" onclick={addNewPlayer}>
@@ -130,7 +120,7 @@
 	.screen {
 		display: flex;
 		flex-direction: column;
-		min-height: 100vh;
+		min-height: calc(100vh - var(--nav-height));
 		background: var(--surface-primary);
 	}
 
@@ -153,21 +143,6 @@
 		color: var(--foreground-primary);
 	}
 
-	.host-pill {
-		display: inline-flex;
-		align-items: center;
-		gap: 8px;
-		padding: 8px 14px;
-		border-radius: var(--radius-pill);
-		border: 1px solid var(--border-subtle);
-		color: var(--foreground-secondary);
-		font-family: var(--font-caption);
-		font-size: var(--text-sm);
-		font-weight: var(--font-weight-medium);
-	}
-	.host-pill__icon {
-		color: var(--foreground-secondary);
-	}
 
 	.main {
 		flex: 1;
@@ -233,6 +208,7 @@
 	}
 
 	.avatar {
+		position: relative;
 		width: 120px;
 		height: 120px;
 		border-radius: var(--radius-pill);
@@ -243,6 +219,21 @@
 			0 4px 6px rgba(0, 0, 0, 0.03),
 			0 16px 40px rgba(0, 0, 0, 0.07);
 		transition: transform 0.15s ease;
+	}
+	.avatar__crown {
+		position: absolute;
+		bottom: -2px;
+		right: -2px;
+		width: 30px;
+		height: 30px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		background: var(--accent-primary);
+		color: var(--accent-on);
+		border: 3px solid var(--surface-primary);
+		border-radius: var(--radius-pill);
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 	}
 	.avatar__initial {
 		font-family: var(--font-heading);
@@ -258,11 +249,26 @@
 		color: var(--foreground-tertiary);
 	}
 
+	.tile__name-row {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+	}
 	.tile__name {
 		font-family: var(--font-body);
 		font-size: var(--text-sm);
 		font-weight: var(--font-weight-medium);
 		color: var(--foreground-primary);
+	}
+	.tile__role {
+		padding: 2px 8px;
+		border-radius: var(--radius-pill);
+		background: var(--accent-primary);
+		color: var(--accent-on);
+		font-family: var(--font-caption);
+		font-size: var(--text-xs);
+		font-weight: var(--font-weight-semibold);
+		letter-spacing: 0.6px;
 	}
 	.tile__name--muted {
 		color: var(--foreground-secondary);

@@ -2,7 +2,9 @@
 	import { goto } from '$app/navigation';
 	import { group } from '$lib/state/group.svelte';
 	import { games } from '$lib/state/games.svelte';
-	import { swipes } from '$lib/state/swipes.svelte';
+	import { getAllHistory, getHistory, getCurrentIndex, resetAll } from '$lib/state/swipes.svelte';
+	import { clearGroup } from '$lib/state/group.svelte';
+	import { profileById } from '$lib/profiles';
 	import { profile } from '$lib/state/profile.svelte';
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
@@ -10,24 +12,50 @@
 	import StatsRow from './StatsRow.svelte';
 	import type { Game, SwipeRecord } from '$lib/types';
 
-	type Filter = 'all' | 'matched' | 'voting';
+	type Filter = 'all' | 'matched';
 	let filter = $state<Filter>('all');
 
-	const memberIds = $derived(group.current?.memberIds ?? []);
-	const memberCount = $derived(memberIds.length);
+	// Dashboard access rules:
+	//   - No profile → bounce to picker.
+	//   - Host → always allowed.
+	//   - Non-host → allowed only after they've swiped through every game in the
+	//     catalog (so they can't peek at how others voted while still voting).
+	$effect(() => {
+		if (!profile.id) {
+			goto('/');
+			return;
+		}
+		if (profile.isAdmin) return;
+		const total = games.catalog.length;
+		const idx = getCurrentIndex(profile.id);
+		if (total === 0 || idx < total) {
+			goto('/swipe');
+		}
+	});
 
-	// Members who have cast at least one swipe.
-	const votingMembers = $derived(
-		new Set(swipes.history.map((s) => s.profileId))
-	);
-	const doneCount = $derived(votingMembers.size);
+	const allSwipes = $derived(getAllHistory());
+	const swiperIds = $derived(new Set(allSwipes.map((s) => s.profileId)));
+
+	// Effective roster = explicit group members ∪ anyone who has swiped.
+	// Anyone who has swiped is implicitly part of this session, even if their
+	// memberIds entry got lost (e.g. localStorage migration, manual reset).
+	const memberIds = $derived.by(() => {
+		const base = group.current?.memberIds ?? [];
+		const out = [...base];
+		for (const id of swiperIds) {
+			if (!out.includes(id)) out.push(id);
+		}
+		return out;
+	});
+	const memberCount = $derived(memberIds.length);
+	const doneCount = $derived(memberIds.filter((id) => swiperIds.has(id)).length);
 
 	// Sessions progress: percentage of (members × games) swipes covered.
 	const totalPossibleSwipes = $derived(memberCount * games.catalog.length);
 	const sessionPct = $derived(
 		totalPossibleSwipes === 0
 			? 0
-			: Math.min(100, Math.round((swipes.history.length / totalPossibleSwipes) * 100))
+			: Math.min(100, Math.round((allSwipes.length / totalPossibleSwipes) * 100))
 	);
 
 	// Per-game tally.
@@ -42,7 +70,7 @@
 
 	const rows = $derived.by<GameRow[]>(() => {
 		const byGame = new Map<number, SwipeRecord[]>();
-		for (const s of swipes.history) {
+		for (const s of allSwipes) {
 			if (!byGame.has(s.gameId)) byGame.set(s.gameId, []);
 			byGame.get(s.gameId)!.push(s);
 		}
@@ -61,32 +89,40 @@
 
 	const filteredRows = $derived.by(() => {
 		if (filter === 'matched') return sortedRows.filter((r) => r.matched);
-		if (filter === 'voting') return sortedRows.filter((r) => r.stillVoting && !r.matched);
 		return sortedRows;
 	});
 
 	const matchedCount = $derived(rows.filter((r) => r.matched).length);
 	const topMatch = $derived(rows.find((r) => r.matched)?.game);
 
-	const decorColors = [
+	// Resolve a profileId to its display name + avatar via the canonical roster.
+	// Unknown ids (e.g. ad-hoc adds) get a generic "Player N" fallback.
+	function memberDisplay(id: string, index: number) {
+		const seed = profileById(id);
+		if (seed) return { name: seed.name, initial: seed.initial, bg: seed.bg, fg: seed.fg };
+		return {
+			name: `Player ${index + 1}`,
+			initial: String(index + 1),
+			bg: 'var(--surface-tertiary)',
+			fg: 'var(--foreground-secondary)'
+		};
+	}
+
+	// Deterministic decor-palette color from any string id — used for the game tag chips.
+	const decorTokens = [
 		'var(--decor-peach)',
 		'var(--decor-sky)',
 		'var(--decor-mint)',
 		'var(--decor-cream)',
 		'var(--decor-lavender)',
 		'var(--decor-cyan)',
-		'var(--decor-pink)'
+		'var(--decor-pink)',
+		'var(--decor-purple)'
 	];
-
-	function avatarBg(id: string) {
+	function tagBg(id: string) {
 		let h = 0;
 		for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-		return decorColors[h % decorColors.length];
-	}
-
-	function initials(name: string) {
-		const parts = name.trim().split(/\s+/);
-		return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || '?';
+		return decorTokens[h % decorTokens.length];
 	}
 
 	function tagFromGame(g: Game): string {
@@ -96,7 +132,16 @@
 	}
 
 	function memberDoneCount(memberId: string) {
-		return swipes.history.filter((s) => s.profileId === memberId).length;
+		return getHistory(memberId).length;
+	}
+
+	function resetSession() {
+		if (!confirm('Reset the session? This clears all swipes and matches. The game catalog stays.')) {
+			return;
+		}
+		resetAll();
+		clearGroup();
+		goto('/');
 	}
 </script>
 
@@ -180,13 +225,13 @@
 				<ul class="players">
 					{#each memberIds as id, i (id)}
 						{@const isMe = id === profile.id}
-						{@const name = isMe ? profile.name || 'You' : `Player ${i + 1}`}
+						{@const d = memberDisplay(id, i)}
 						{@const done = memberDoneCount(id)}
 						{@const hasVoted = done > 0}
 						<li class="player" class:player--me={isMe}>
-							<span class="avatar" style:background={avatarBg(id)}>{initials(name)}</span>
+							<span class="avatar" style:background={d.bg} style:color={d.fg}>{d.initial}</span>
 							<div class="player__info">
-								<span class="player__name">{name}</span>
+								<span class="player__name">{d.name}{isMe ? ' (you)' : ''}</span>
 								<span class="player__sub">
 									{hasVoted ? `${done} swipes` : 'Hasn’t started'}
 								</span>
@@ -198,10 +243,10 @@
 					{/each}
 				</ul>
 
-				<button class="add-player" type="button">
+				<a class="add-player" href="/">
 					<span aria-hidden="true">+</span>
-					Add another player
-				</button>
+					Switch player
+				</a>
 			</aside>
 
 			<!-- Games & Votes panel -->
@@ -215,9 +260,6 @@
 						<NavPill active={filter === 'all'} onclick={() => (filter = 'all')}>All</NavPill>
 						<NavPill active={filter === 'matched'} onclick={() => (filter = 'matched')}>
 							Matched
-						</NavPill>
-						<NavPill active={filter === 'voting'} onclick={() => (filter = 'voting')}>
-							Voting
 						</NavPill>
 					</div>
 				</header>
@@ -241,7 +283,7 @@
 							memberCount > 0 ? Math.round((row.passes / memberCount) * 100) : 0}
 						<div class="row" class:row--matched={row.matched}>
 							<div class="col col--game">
-								<span class="game-tag" style:background={avatarBg(String(row.game.id))}>
+								<span class="game-tag" style:background={tagBg(String(row.game.id))}>
 									{tagFromGame(row.game)}
 								</span>
 								<div class="game-meta">
@@ -287,8 +329,9 @@
 
 							<div class="col col--players">
 								{#each row.voters.slice(0, 5) as voterId, vi (vi)}
-									<span class="stack-avatar" style:background={avatarBg(voterId)}>
-										{initials(voterId === profile.id ? profile.name || 'You' : voterId)}
+									{@const v = memberDisplay(voterId, vi)}
+									<span class="stack-avatar" style:background={v.bg} style:color={v.fg}>
+										{v.initial}
 									</span>
 								{/each}
 								{#if row.voters.length > 5}
@@ -310,6 +353,7 @@
 				A game becomes a match when every player swipes right.
 			</div>
 			<div class="footer__actions">
+				<Button variant="ghost" onclick={resetSession}>Reset session</Button>
 				<Button variant="secondary" onclick={() => goto('/admin')}>Add games</Button>
 				<Button
 					variant="primary"
@@ -600,6 +644,7 @@
 		font-size: var(--text-sm);
 		font-weight: var(--font-weight-medium);
 		cursor: pointer;
+		text-decoration: none;
 	}
 	.add-player:hover {
 		background: var(--surface-secondary);

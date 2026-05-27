@@ -15,6 +15,20 @@ export function setGroup(g: Group) {
 	persist();
 }
 
+/**
+ * Ensure a default group exists and the given profile is a member.
+ * Idempotent — safe to call every time someone picks a profile.
+ */
+export function joinGroup(profileId: string) {
+	if (!profileId) return;
+	if (!group.current) {
+		group.current = { id: 'default', name: "Tonight's group", memberIds: [profileId] };
+	} else if (!group.current.memberIds.includes(profileId)) {
+		group.current.memberIds.push(profileId);
+	}
+	persist();
+}
+
 export function addMatch(m: Match) {
 	group.matches.push(m);
 	persist();

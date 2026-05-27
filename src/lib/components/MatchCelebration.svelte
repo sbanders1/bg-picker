@@ -2,14 +2,40 @@
 	import { goto } from '$app/navigation';
 	import { group } from '$lib/state/group.svelte';
 	import { getGame } from '$lib/state/games.svelte';
+	import { profile } from '$lib/state/profile.svelte';
+	import { profileById, type SeedProfile } from '$lib/profiles';
 	import Header from './Header.svelte';
 	import Button from './Button.svelte';
 	import StatsRow from './StatsRow.svelte';
+
+	// Bounce to the picker if no active profile.
+	$effect(() => {
+		if (!profile.id) goto('/');
+	});
 
 	const latestMatch = $derived(group.matches[group.matches.length - 1]);
 	const game = $derived(latestMatch ? getGame(latestMatch.gameId) : undefined);
 
 	const playerCount = $derived(latestMatch?.profileIds.length ?? 0);
+
+	// Resolve match participants through the roster; cap at 5 chips and split across
+	// the two decorative rails (ceil/2 on the left, rest on the right).
+	function fallbackSeed(id: string, idx: number): SeedProfile {
+		return {
+			id,
+			name: `Player ${idx + 1}`,
+			initial: String(idx + 1),
+			bg: 'var(--surface-tertiary)',
+			fg: 'var(--foreground-secondary)'
+		};
+	}
+	const matchedProfiles = $derived(
+		(latestMatch?.profileIds ?? [])
+			.slice(0, 5)
+			.map((id, i): SeedProfile => profileById(id) ?? fallbackSeed(id, i))
+	);
+	const leftChips = $derived(matchedProfiles.slice(0, Math.ceil(matchedProfiles.length / 2)));
+	const rightChips = $derived(matchedProfiles.slice(Math.ceil(matchedProfiles.length / 2)));
 
 	const statsItems = $derived.by(() => {
 		if (!game) return [];
@@ -96,9 +122,6 @@
 	function back() {
 		goto('/swipe');
 	}
-	function dashboard() {
-		goto('/group');
-	}
 	function startNight() {
 		goto('/group');
 	}
@@ -146,13 +169,13 @@
 
 			<section class="center">
 				<aside class="rail rail--left" aria-hidden="true">
-					{#each ['peach', 'sky'] as color, i (i)}
+					{#each leftChips as p (p.id)}
 						<div class="chip">
-							<span class="chip__avatar" style:background={tokenFor(color)}>
-								{['M', 'A'][i]}
+							<span class="chip__avatar" style:background={p.bg} style:color={p.fg}>
+								{p.initial}
 							</span>
 							<span class="chip__meta">
-								<span class="chip__name">{['Morgan', 'Alex'][i]}</span>
+								<span class="chip__name">{p.name}</span>
 								<span class="chip__status">picked tonight</span>
 							</span>
 						</div>
@@ -183,13 +206,13 @@
 				</article>
 
 				<aside class="rail rail--right" aria-hidden="true">
-					{#each ['mint', 'cream', 'lavender'] as color, i (i)}
+					{#each rightChips as p (p.id)}
 						<div class="chip">
-							<span class="chip__avatar" style:background={tokenFor(color)}>
-								{['J', 'C', 'R'][i]}
+							<span class="chip__avatar" style:background={p.bg} style:color={p.fg}>
+								{p.initial}
 							</span>
 							<span class="chip__meta">
-								<span class="chip__name">{['Jordan', 'Casey', 'Riley'][i]}</span>
+								<span class="chip__name">{p.name}</span>
 								<span class="chip__status">picked tonight</span>
 							</span>
 						</div>
@@ -218,10 +241,8 @@
 
 			<div class="actions">
 				<Button variant="secondary" size="lg" onclick={back}>Keep swiping</Button>
-				<Button variant="primary" size="lg" onclick={startNight}>Start game night</Button>
+				<Button variant="primary" size="lg" onclick={startNight}>See all matches</Button>
 			</div>
-
-			<button class="link" type="button" onclick={dashboard}>Back to dashboard</button>
 		{/if}
 	</main>
 </div>
@@ -229,7 +250,7 @@
 <style>
 	.screen {
 		position: relative;
-		min-height: 100vh;
+		min-height: calc(100vh - var(--nav-height));
 		background: var(--surface-primary);
 		overflow: hidden;
 	}
@@ -450,19 +471,6 @@
 		display: flex;
 		gap: 14px;
 		align-items: center;
-	}
-	.link {
-		background: none;
-		border: none;
-		padding: 8px 12px;
-		font-family: var(--font-body);
-		font-size: var(--text-sm);
-		color: var(--foreground-secondary);
-		text-decoration: underline;
-		cursor: pointer;
-	}
-	.link:hover {
-		color: var(--foreground-primary);
 	}
 
 	/* Empty state */

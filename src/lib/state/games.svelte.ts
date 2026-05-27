@@ -24,6 +24,14 @@ export function getGame(id: number): Game | undefined {
 	return games.byId[id];
 }
 
+export function removeGame(id: number) {
+	if (!games.byId[id]) return;
+	delete games.byId[id];
+	const idx = games.catalog.findIndex((g) => g.id === id);
+	if (idx >= 0) games.catalog.splice(idx, 1);
+	persist();
+}
+
 export function clearGames() {
 	games.catalog = [];
 	games.byId = {};

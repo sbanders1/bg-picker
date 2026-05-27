@@ -1,5 +1,5 @@
 <script lang="ts">
-	import TitleBanner from '$lib/components/TitleBanner.svelte';
+	import ProfilePicker from '$lib/components/ProfilePicker.svelte';
 </script>
 
-<TitleBanner />
+<ProfilePicker />

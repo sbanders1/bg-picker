@@ -30,7 +30,14 @@ export function init() {
 	const raw = localStorage.getItem(KEY);
 	if (!raw) return;
 	try {
-		Object.assign(profile, JSON.parse(raw));
+		const parsed = JSON.parse(raw);
+		// Migration: 'host' is no longer a distinct profile — it's a role on a seed profile.
+		// Drop a stale 'host' entry so the user re-picks a real seed (Alex/Sam) cleanly.
+		if (parsed?.id === 'host') {
+			localStorage.removeItem(KEY);
+			return;
+		}
+		Object.assign(profile, parsed);
 	} catch {
 		/* corrupt entry — ignore */
 	}

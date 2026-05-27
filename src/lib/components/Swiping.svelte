@@ -1,22 +1,65 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { games } from '$lib/state/games.svelte';
-	import { swipes, like, pass } from '$lib/state/swipes.svelte';
+	import {
+		like,
+		pass,
+		getCurrentIndex,
+		getHistory,
+		getAllHistory,
+		gameMatchedBy
+	} from '$lib/state/swipes.svelte';
+	import { getGame } from '$lib/state/games.svelte';
+	import { profileById } from '$lib/profiles';
 	import { profile } from '$lib/state/profile.svelte';
 	import { group, addMatch } from '$lib/state/group.svelte';
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
 	import StatsRow from './StatsRow.svelte';
 
+	// Bounce to the picker if there's no active profile — prevents writing swipes
+	// with an empty profileId, which would corrupt the per-profile buckets.
+	$effect(() => {
+		if (!profile.id) goto('/');
+	});
+
 	const total = $derived(games.catalog.length);
-	const index = $derived(swipes.currentIndex);
+	const index = $derived(getCurrentIndex(profile.id));
+	const history = $derived(getHistory(profile.id));
 	const currentGame = $derived(index < total ? games.catalog[index] : undefined);
 	const done = $derived(total > 0 && index >= total);
-	const likeCount = $derived(
-		swipes.history.filter((h) => h.direction === 'like').length
+
+	// Progress dots — cap so a 50-game catalog doesn't render a centipede.
+	const MAX_DOTS = 12;
+	const visibleDotCount = $derived(Math.min(total, MAX_DOTS));
+	const currentDotIndex = $derived(
+		total <= MAX_DOTS
+			? index
+			: Math.floor((index / Math.max(total - 1, 1)) * (MAX_DOTS - 1))
 	);
-	const passCount = $derived(
-		swipes.history.filter((h) => h.direction === 'pass').length
+
+	// Group-level math for the bottom voting bar.
+	const allSwipes = $derived(getAllHistory());
+	const swiperIds = $derived(new Set(allSwipes.map((s) => s.profileId)));
+	const effectiveMemberIds = $derived.by(() => {
+		const base = group.current?.memberIds ?? [];
+		const out = [...base];
+		for (const id of swiperIds) if (!out.includes(id)) out.push(id);
+		return out;
+	});
+	const memberCount = $derived(effectiveMemberIds.length);
+	const doneCount = $derived(effectiveMemberIds.filter((id) => swiperIds.has(id)).length);
+
+	// Per-CURRENT-GAME tallies across the group (not the current swiper's session totals).
+	const gameLikeCount = $derived(
+		currentGame
+			? allSwipes.filter((s) => s.gameId === currentGame.id && s.direction === 'like').length
+			: 0
+	);
+	const gamePassCount = $derived(
+		currentGame
+			? allSwipes.filter((s) => s.gameId === currentGame.id && s.direction === 'pass').length
+			: 0
 	);
 
 	const initial = $derived(
@@ -70,13 +113,13 @@
 		if (!currentGame) return;
 		const gameId = currentGame.id;
 		like(gameId, profile.id);
-		// v1 simulate: every 5th like is a match
-		if (likeCount + 1 > 0 && (likeCount + 1) % 5 === 0) {
-			addMatch({
-				gameId,
-				at: Date.now(),
-				profileIds: [profile.id]
-			});
+
+		// Real match detection: did this like complete a unanimous vote?
+		const memberIds = group.current?.memberIds ?? [];
+		const matchedBy = gameMatchedBy(gameId, memberIds);
+		const alreadyMatched = group.matches.some((m) => m.gameId === gameId);
+		if (matchedBy && !alreadyMatched) {
+			addMatch({ gameId, at: Date.now(), profileIds: matchedBy });
 			goto('/match');
 		}
 	}
@@ -87,6 +130,20 @@
 	}
 
 	function handleKey(e: KeyboardEvent) {
+		// Modal-open mode: arrows cycle photos, Escape closes.
+		if (inspectId !== null) {
+			if (e.key === 'Escape') {
+				e.preventDefault();
+				closeInspect();
+			} else if (e.key === 'ArrowRight') {
+				e.preventDefault();
+				nextPhoto();
+			} else if (e.key === 'ArrowLeft') {
+				e.preventDefault();
+				prevPhoto();
+			}
+			return;
+		}
 		if (done || !currentGame) return;
 		if (e.key === 'ArrowRight') {
 			e.preventDefault();
@@ -95,6 +152,41 @@
 			e.preventDefault();
 			onPass();
 		}
+	}
+
+	// --- Game details modal ---
+	let inspectId = $state<number | null>(null);
+	let photoIndex = $state(0);
+	const inspectGame = $derived(inspectId !== null ? getGame(inspectId) : undefined);
+	const inspectPhotos = $derived(inspectGame?.photos ?? (inspectGame?.image ? [inspectGame.image] : []));
+
+	function openInspect() {
+		if (!currentGame) return;
+		inspectId = currentGame.id;
+		photoIndex = 0;
+	}
+	function closeInspect() {
+		inspectId = null;
+	}
+	function prevPhoto() {
+		const n = inspectPhotos.length;
+		if (n > 0) photoIndex = (photoIndex - 1 + n) % n;
+	}
+	function nextPhoto() {
+		const n = inspectPhotos.length;
+		if (n > 0) photoIndex = (photoIndex + 1) % n;
+	}
+
+	function inspectStats(g: typeof inspectGame): string[] {
+		if (!g) return [];
+		const items: string[] = [];
+		const p = playerCountLabel(g);
+		const t = playTimeLabel(g);
+		const c = complexityLabel(g);
+		if (p) items.push(p);
+		if (t) items.push(t);
+		if (c) items.push(c);
+		return items;
 	}
 </script>
 
@@ -141,18 +233,25 @@
 		{#if done}
 			<div class="empty">
 				<h2 class="empty__title">All swiped</h2>
-				<p class="empty__body">You're through the stack — head back to the dashboard.</p>
+				<p class="empty__body">You're through the stack — see how the group voted.</p>
 				<Button variant="primary" size="lg" onclick={() => goto('/group')}>
-					{#snippet children()}Back to dashboard{/snippet}
+					{#snippet children()}View results{/snippet}
 				</Button>
 			</div>
 		{:else if !currentGame}
 			<div class="empty">
 				<h2 class="empty__title">No games yet</h2>
-				<p class="empty__body">Add games in admin to start voting.</p>
-				<Button variant="primary" size="lg" onclick={() => goto('/admin')}>
-					{#snippet children()}Go to admin{/snippet}
-				</Button>
+				{#if profile.isAdmin}
+					<p class="empty__body">Add games in the catalog to start voting.</p>
+					<Button variant="primary" size="lg" onclick={() => goto('/admin')}>
+						{#snippet children()}Go to catalog{/snippet}
+					</Button>
+				{:else}
+					<p class="empty__body">Ask the host to add games to the catalog.</p>
+					<Button variant="secondary" size="lg" onclick={() => goto('/')}>
+						{#snippet children()}Switch profile{/snippet}
+					</Button>
+				{/if}
 			</div>
 		{:else}
 			<section class="progress" aria-label="Swipe progress">
@@ -162,11 +261,11 @@
 					<span class="progress__total">of {total}</span>
 				</div>
 				<div class="progress__dots" aria-hidden="true">
-					{#each games.catalog as _, i (i)}
+					{#each Array(visibleDotCount) as _, i (i)}
 						<span
 							class="dot"
-							class:dot--done={i < index}
-							class:dot--active={i === index}
+							class:dot--done={i < currentDotIndex}
+							class:dot--active={i === currentDotIndex}
 						></span>
 					{/each}
 				</div>
@@ -180,8 +279,17 @@
 					<div class="peek__hero peek__hero--one"></div>
 				</div>
 
+				<button
+					type="button"
+					class="card-btn"
+					onclick={openInspect}
+					aria-label="View {currentGame.name} details"
+				>
 				<article class="card" {...{ key: currentGame.id }}>
 					<div class="card__hero">
+						{#if currentGame.image || currentGame.thumbnail}
+							<img class="card__heroImg" src={currentGame.image ?? currentGame.thumbnail} alt="" />
+						{/if}
 						<span class="card__heroText">{heroLabel}</span>
 					</div>
 
@@ -216,6 +324,7 @@
 						{/if}
 					</div>
 				</article>
+				</button>
 			</div>
 
 			<div class="actions">
@@ -229,12 +338,6 @@
 						stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 						<path d="M18 6L6 18" />
 						<path d="M6 6l12 12" />
-					</svg>
-				</button>
-
-				<button class="circle circle--star" type="button" aria-label="Super like (coming soon)" disabled>
-					<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-						<path d="M12 2l2.9 6.9L22 10l-5.5 4.7L18.2 22 12 18.3 5.8 22l1.7-7.3L2 10l7.1-1.1L12 2z" />
 					</svg>
 				</button>
 
@@ -252,8 +355,7 @@
 
 			<div class="hints" aria-hidden="true">
 				<span class="hint">← Pass</span>
-				<span class="hint">↑ Super</span>
-				<span class="hint">→ Play</span>
+				<span class="hint">→ Like</span>
 			</div>
 		{/if}
 	</main>
@@ -263,18 +365,19 @@
 			<div class="vote__meta">
 				<span class="vote__eyebrow">WHO'S VOTING</span>
 				<span class="vote__count">
-					{group.current
-						? `${Math.min(index, total)} of ${group.current.memberIds.length || 1} done`
-						: `${index} swiped`}
+					{memberCount > 0 ? `${doneCount} of ${memberCount} done` : `${index} swiped`}
 				</span>
 			</div>
 			<div class="vote__avatars">
-				{#if group.current?.memberIds?.length}
-					{#each group.current.memberIds as memberId (memberId)}
+				{#if effectiveMemberIds.length}
+					{#each effectiveMemberIds as memberId (memberId)}
+						{@const seed = profileById(memberId)}
 						<span
 							class="vote__avatar"
 							class:vote__avatar--self={memberId === profile.id}
-						>{memberId.charAt(0).toUpperCase()}</span>
+							style:background={seed?.bg ?? 'var(--surface-tertiary)'}
+							style:color={seed?.fg ?? 'var(--foreground-secondary)'}
+						>{seed?.initial ?? memberId.charAt(0).toUpperCase()}</span>
 					{/each}
 				{:else}
 					<span class="vote__avatar vote__avatar--self">{initial}</span>
@@ -287,7 +390,7 @@
 				<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
 					<path d="M12 21s-7-4.35-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.65-9.5 9-9.5 9z" />
 				</svg>
-				{likeCount}
+				{gameLikeCount}
 			</span>
 			<span class="tally tally--pass">
 				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -295,7 +398,7 @@
 					<path d="M18 6L6 18" />
 					<path d="M6 6l12 12" />
 				</svg>
-				{passCount}
+				{gamePassCount}
 			</span>
 			<span class="vote__divider" aria-hidden="true"></span>
 			<Button variant="secondary" size="md" onclick={() => goto('/group')}>
@@ -305,11 +408,106 @@
 	</footer>
 </div>
 
+{#if inspectGame}
+	<div
+		class="modal-backdrop"
+		role="presentation"
+		onclick={closeInspect}
+		onkeydown={(e) => { if (e.key === 'Escape') closeInspect(); }}
+	>
+		<div
+			class="modal"
+			role="dialog"
+			tabindex="-1"
+			aria-modal="true"
+			aria-labelledby="inspect-title"
+			onclick={(e) => e.stopPropagation()}
+			onkeydown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); closeInspect(); } }}
+		>
+			<button
+				type="button"
+				class="modal__close"
+				onclick={closeInspect}
+				aria-label="Close details"
+			>
+				<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+					stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<path d="M18 6L6 18" />
+					<path d="M6 6l12 12" />
+				</svg>
+			</button>
+
+			<div class="modal__media">
+				{#if inspectPhotos.length > 0}
+					<img class="modal__photo" src={inspectPhotos[photoIndex]} alt="" />
+					{#if inspectPhotos.length > 1}
+						<button class="modal__nav modal__nav--prev" type="button" onclick={prevPhoto}
+							aria-label="Previous photo">
+							<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+								stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<polyline points="15 18 9 12 15 6" />
+							</svg>
+						</button>
+						<button class="modal__nav modal__nav--next" type="button" onclick={nextPhoto}
+							aria-label="Next photo">
+							<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+								stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<polyline points="9 18 15 12 9 6" />
+							</svg>
+						</button>
+						<div class="modal__dots" aria-hidden="true">
+							{#each inspectPhotos as _, i (i)}
+								<span class="modal__dot" class:modal__dot--active={i === photoIndex}></span>
+							{/each}
+						</div>
+					{/if}
+				{:else}
+					<div class="modal__photo modal__photo--placeholder">{inspectGame.name}</div>
+				{/if}
+			</div>
+
+			<div class="modal__body">
+				<header class="modal__head">
+					<h2 class="modal__title" id="inspect-title">{inspectGame.name}</h2>
+					{#if inspectGame.yearPublished}
+						<span class="modal__year">{inspectGame.yearPublished}</span>
+					{/if}
+				</header>
+
+				{#if inspectStats(inspectGame).length > 0}
+					<StatsRow items={inspectStats(inspectGame)} />
+				{/if}
+
+				{#if inspectGame.description}
+					<p class="modal__desc">{inspectGame.description}</p>
+				{/if}
+
+				{#if inspectGame.categories && inspectGame.categories.length > 0}
+					<div class="modal__chips">
+						{#each inspectGame.categories.slice(0, 4) as cat (cat)}
+							<span class="modal__chip">{cat}</span>
+						{/each}
+					</div>
+				{/if}
+
+				<a class="modal__full-link" href={`/game/${inspectGame.id}`}>
+					View full profile
+					<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
+						stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<line x1="5" y1="12" x2="19" y2="12" />
+						<polyline points="12 5 19 12 12 19" />
+					</svg>
+				</a>
+			</div>
+		</div>
+	</div>
+{/if}
+
 <style>
 	.swiping {
 		display: flex;
 		flex-direction: column;
-		min-height: 100vh;
+		min-height: calc(100vh - var(--nav-height));
 		background: var(--surface-primary);
 		color: var(--foreground-primary);
 	}
@@ -785,5 +983,213 @@
 		font-size: var(--text-base);
 		color: var(--foreground-secondary);
 		margin: 0 0 8px;
+	}
+
+	/* Card click affordance — wraps the article and resets button defaults. */
+	.card-btn {
+		display: block;
+		width: 100%;
+		padding: 0;
+		background: transparent;
+		border: 0;
+		text-align: left;
+		font: inherit;
+		color: inherit;
+		cursor: pointer;
+	}
+	.card-btn:focus-visible {
+		outline: 2px solid var(--accent-primary);
+		outline-offset: 6px;
+		border-radius: var(--radius-xl);
+	}
+
+	/* Hero image (shown when game has one). */
+	.card__heroImg {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	/* --- Game details modal --- */
+	.modal-backdrop {
+		position: fixed;
+		inset: 0;
+		background: rgba(26, 26, 26, 0.55);
+		backdrop-filter: blur(4px);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 24px;
+		z-index: 100;
+		animation: fade 0.18s ease-out;
+	}
+	@keyframes fade {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+
+	.modal {
+		position: relative;
+		width: 100%;
+		max-width: 560px;
+		max-height: calc(100vh - 80px);
+		overflow: hidden;
+		background: var(--surface-primary);
+		border-radius: var(--radius-xl);
+		box-shadow:
+			0 10px 20px rgba(0, 0, 0, 0.1),
+			0 30px 60px rgba(0, 0, 0, 0.25);
+		display: flex;
+		flex-direction: column;
+	}
+
+	.modal__close {
+		position: absolute;
+		top: 12px;
+		right: 12px;
+		z-index: 2;
+		width: 36px;
+		height: 36px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border: 0;
+		border-radius: var(--radius-pill);
+		background: rgba(255, 255, 255, 0.92);
+		color: var(--foreground-primary);
+		cursor: pointer;
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+	}
+	.modal__close:hover {
+		background: var(--surface-primary);
+	}
+
+	.modal__media {
+		position: relative;
+		width: 100%;
+		aspect-ratio: 3 / 2;
+		background: var(--surface-tertiary);
+		overflow: hidden;
+	}
+	.modal__photo {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		display: block;
+	}
+	.modal__photo--placeholder {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-family: var(--font-heading);
+		font-size: var(--text-2xl);
+		font-weight: var(--font-weight-semibold);
+		color: var(--foreground-secondary);
+	}
+	.modal__nav {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 40px;
+		height: 40px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border: 0;
+		border-radius: var(--radius-pill);
+		background: rgba(255, 255, 255, 0.92);
+		color: var(--foreground-primary);
+		cursor: pointer;
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+	}
+	.modal__nav--prev { left: 12px; }
+	.modal__nav--next { right: 12px; }
+	.modal__nav:hover { background: var(--surface-primary); }
+
+	.modal__dots {
+		position: absolute;
+		bottom: 12px;
+		left: 0;
+		right: 0;
+		display: flex;
+		justify-content: center;
+		gap: 6px;
+	}
+	.modal__dot {
+		width: 6px;
+		height: 6px;
+		border-radius: var(--radius-pill);
+		background: rgba(255, 255, 255, 0.5);
+	}
+	.modal__dot--active {
+		background: var(--surface-primary);
+		width: 18px;
+	}
+
+	.modal__body {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		padding: 20px 24px 24px;
+		overflow-y: auto;
+	}
+	.modal__head {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 12px;
+	}
+	.modal__title {
+		font-family: var(--font-heading);
+		font-size: var(--text-2xl);
+		font-weight: var(--font-weight-semibold);
+		color: var(--foreground-primary);
+		margin: 0;
+	}
+	.modal__year {
+		font-family: var(--font-caption);
+		font-size: var(--text-sm);
+		color: var(--foreground-tertiary);
+	}
+	.modal__desc {
+		font-family: var(--font-body);
+		font-size: var(--text-sm);
+		line-height: 1.55;
+		color: var(--foreground-secondary);
+		margin: 0;
+		display: -webkit-box;
+		-webkit-line-clamp: 4;
+		line-clamp: 4;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+	.modal__chips {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+	}
+	.modal__chip {
+		padding: 4px 10px;
+		border-radius: var(--radius-pill);
+		background: var(--surface-secondary);
+		font-family: var(--font-caption);
+		font-size: var(--text-xs);
+		color: var(--foreground-secondary);
+	}
+	.modal__full-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		margin-top: 4px;
+		color: var(--accent-primary);
+		text-decoration: none;
+		font-family: var(--font-body);
+		font-size: var(--text-sm);
+		font-weight: var(--font-weight-semibold);
+	}
+	.modal__full-link:hover {
+		text-decoration: underline;
 	}
 </style>

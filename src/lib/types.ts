@@ -2,6 +2,8 @@ export type Profile = {
 	id: string;
 	name: string;
 	avatar: string;
+	/** Only an admin / host can add games to the catalog. */
+	isAdmin?: boolean;
 };
 
 export type Rank = {
@@ -33,6 +35,8 @@ export type Game = {
 	/** BGG bug: API sometimes returns 0 even when site shows a value. We map 0 → null. */
 	averageWeight?: number | null;
 	ranks?: Rank[];
+	/** Extra images for the game details modal. Mock-only for now; live BGG fetch is not wired. */
+	photos?: string[];
 };
 
 export type BggSearchResult = {
