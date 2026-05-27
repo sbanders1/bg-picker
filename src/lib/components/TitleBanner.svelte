@@ -1,18 +1,28 @@
-<!-- STUB — Phase 2 agent A1 replaces this with frame bi8Au. -->
-<div class="stub">
-	<h2>TitleBanner</h2>
-	<p>Placeholder — implement bg-picker.pen frame bi8Au.</p>
-</div>
+<script lang="ts">
+	// Title Banner — frame bi8Au
+	// Single centered heading on the primary surface.
+</script>
+
+<header class="title-banner">
+	<h1 class="title">GameMatch — Tinder-style board game picker</h1>
+</header>
 
 <style>
-	.stub {
-		padding: 40px;
-		margin: 40px auto;
-		max-width: 800px;
-		background: var(--surface-secondary);
-		border: 2px dashed var(--border-subtle);
-		border-radius: var(--radius-lg);
+	.title-banner {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 120px;
+		background: var(--surface-primary);
+	}
+
+	.title {
+		font-family: var(--font-heading);
+		font-size: var(--text-3xl);
+		font-weight: var(--font-weight-semibold);
+		color: var(--foreground-primary);
 		text-align: center;
-		color: var(--foreground-secondary);
+		margin: 0;
 	}
 </style>
