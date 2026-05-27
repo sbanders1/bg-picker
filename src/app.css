@@ -1,0 +1,77 @@
+:root {
+  /* Core palette (from Pencil design variables) */
+  --accent-primary: #4A9FD8;
+  --accent-on: #FFFFFF;
+  --foreground-primary: #1A1A1A;
+  --foreground-secondary: #666666;
+  --foreground-tertiary: #9A9A9A;
+  --surface-primary: #FFFFFF;
+  --surface-secondary: #F7F7F8;
+  --surface-tertiary: #EFEFF2;
+  --border-subtle: #E6E6EA;
+  --success: #4FB286;
+  --danger: #E26A6A;
+  --warning: #E2B25F;
+
+  /* Decoration palette (Match Celebration confetti + category badges) */
+  --decor-peach: #FCE7E1;
+  --decor-sky: #E1ECFC;
+  --decor-mint: #E1FCE9;
+  --decor-cream: #FCF3E1;
+  --decor-lavender: #F0E1FC;
+  --decor-cyan: #E1F8FC;
+  --decor-pink: #FCEAFA;
+  --decor-purple: #D9B8FF;
+
+  /* Type families */
+  --font-heading: 'Funnel Sans', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-caption: 'Geist', system-ui, sans-serif;
+
+  /* Type sizes — covers the 26 distinct sizes used across the design */
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 30px;
+  --text-3xl: 40px;
+  --text-4xl: 52px;
+  --text-5xl: 64px;
+
+  /* Type weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 9999px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--surface-primary);
+  color: var(--foreground-primary);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+}
+
+button { font-family: inherit; }
