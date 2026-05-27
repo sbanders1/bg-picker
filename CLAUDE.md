@@ -59,7 +59,8 @@ The `.pen` file is a structured design artifact living **in this repo** — not 
 
 ### Stack rules
 
-- **Svelte 5 with runes** (`$state`, `$derived`, `$effect`, `$props`). **Never** use Svelte stores, **never** use Svelte 4 `$:` reactive declarations, **never** use `export let`. Most Pencil examples target React + Tailwind — explicitly ignore that bias for this project.
+- **Svelte 5 with runes** (`$state`, `$derived`, `$props`). **Never** use Svelte stores, **never** use Svelte 4 `$:` reactive declarations, **never** use `export let`. Most Pencil examples target React + Tailwind — explicitly ignore that bias for this project.
+- **`$effect` is a last resort**, not a default tool. Use it only for genuine side effects to the outside world (DOM bindings Svelte can't express, third-party JS, network, focus management). For computed values, use `$derived` / `$derived.by`. For one-shot client setup, prefer `onMount` or inline `<script>` calls. Do NOT use `$effect` to sync `$state` with other `$state` — that creates re-render loops (we hit `effect_update_depth_exceeded` once already; root cause was init writes triggering reads in the same effect).
 - **Component path**: `src/lib/components/<Name>.svelte`.
 - **UI only.** Backend logic, persistence, auth, and BoardGameGeek integration (see `docs/bgg-api.md`) are normal coding tasks — out of scope for the "implement this frame" workflow.
 

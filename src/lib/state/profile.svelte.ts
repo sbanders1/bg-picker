@@ -1,4 +1,5 @@
 import type { Profile } from '$lib/types';
+import { group, joinGroup } from './group.svelte';
 
 const KEY = 'gm.profile';
 
@@ -28,17 +29,25 @@ function persist() {
 export function init() {
 	if (typeof localStorage === 'undefined') return;
 	const raw = localStorage.getItem(KEY);
-	if (!raw) return;
-	try {
-		const parsed = JSON.parse(raw);
-		// Migration: 'host' is no longer a distinct profile — it's a role on a seed profile.
-		// Drop a stale 'host' entry so the user re-picks a real seed (Alex/Sam) cleanly.
-		if (parsed?.id === 'host') {
-			localStorage.removeItem(KEY);
-			return;
+	if (raw) {
+		try {
+			const parsed = JSON.parse(raw);
+			// Migration: 'host' is no longer a distinct profile — it's a role on a seed profile.
+			// Drop a stale 'host' entry so the user re-picks a real seed (Alex/Sam) cleanly.
+			if (parsed?.id === 'host') {
+				localStorage.removeItem(KEY);
+				return;
+			}
+			Object.assign(profile, parsed);
+		} catch {
+			/* corrupt entry — ignore */
 		}
-		Object.assign(profile, parsed);
-	} catch {
-		/* corrupt entry — ignore */
+	}
+	// Heal stale state: a profile may have been written before joinGroup was wired
+	// into the pick flow. Make sure the active player is always a group member.
+	// This is intentionally imperative — avoids needing a reactive `$effect` to sync
+	// `$state` with `$state` (see CLAUDE.md "$effect is a last resort").
+	if (profile.id && !group.current) {
+		joinGroup(profile.id);
 	}
 }

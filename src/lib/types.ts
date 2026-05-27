@@ -64,4 +64,21 @@ export type Group = {
 	id: string;
 	name: string;
 	memberIds: string[];
+	startedAt?: number;
+};
+
+/**
+ * An archived game-night session — snapshot of who played, what was in the
+ * catalog, which games matched, and the winning pick.
+ */
+export type Session = {
+	id: string;
+	name: string;
+	startedAt: number;
+	endedAt: number;
+	hostId?: string;
+	memberIds: string[];
+	gameIds: number[];
+	matches: Match[];
+	winnerGameId?: number;
 };

@@ -4,7 +4,6 @@
 	import { getGame } from '$lib/state/games.svelte';
 	import { profile } from '$lib/state/profile.svelte';
 	import { profileById, type SeedProfile } from '$lib/profiles';
-	import Header from './Header.svelte';
 	import Button from './Button.svelte';
 	import StatsRow from './StatsRow.svelte';
 
@@ -128,8 +127,6 @@
 </script>
 
 <div class="screen">
-	<Header title="GameMatch" />
-
 	<svg
 		class="confetti"
 		viewBox="0 0 1440 820"

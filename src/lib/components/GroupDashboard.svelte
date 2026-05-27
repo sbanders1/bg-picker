@@ -3,8 +3,9 @@
 	import { group } from '$lib/state/group.svelte';
 	import { games } from '$lib/state/games.svelte';
 	import { getAllHistory, getHistory, getCurrentIndex, resetAll } from '$lib/state/swipes.svelte';
-	import { clearGroup } from '$lib/state/group.svelte';
-	import { profileById } from '$lib/profiles';
+	import { clearGroup, joinGroup } from '$lib/state/group.svelte';
+	import { closeSession } from '$lib/state/sessions.svelte';
+	import { profileById, SEED_PROFILES } from '$lib/profiles';
 	import { profile } from '$lib/state/profile.svelte';
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
@@ -17,11 +18,16 @@
 
 	// Dashboard access rules:
 	//   - No profile → bounce to picker.
-	//   - Host → always allowed.
+	//   - No active session (post-close) → bounce home; there's no dashboard to show.
+	//   - Host → always allowed (once a session exists).
 	//   - Non-host → allowed only after they've swiped through every game in the
 	//     catalog (so they can't peek at how others voted while still voting).
 	$effect(() => {
 		if (!profile.id) {
+			goto('/');
+			return;
+		}
+		if (!group.current) {
 			goto('/');
 			return;
 		}
@@ -143,15 +149,37 @@
 		clearGroup();
 		goto('/');
 	}
+
+	function endSession() {
+		if (!group.current) return;
+		const matches = group.matches.length;
+		const msg = matches
+			? `Close "${group.current.name}"? It'll be archived with ${matches} match${matches === 1 ? '' : 'es'}; live swipes reset, catalog stays.`
+			: `Close "${group.current.name}"? It'll be archived (no matches recorded yet); live swipes reset, catalog stays.`;
+		if (!confirm(msg)) return;
+		closeSession();
+		goto('/sessions');
+	}
+
+	// --- Add Player picker ---
+	let addPlayerOpen = $state(false);
+	// Seed roster members who aren't yet part of this session.
+	const availableSeeds = $derived(
+		SEED_PROFILES.filter((p) => !memberIds.includes(p.id))
+	);
+	function addSeed(id: string) {
+		joinGroup(id);
+		addPlayerOpen = false;
+	}
 </script>
 
 {#if !group.current}
 	<div class="empty">
 		<div class="empty__card">
 			<h2>No group yet</h2>
-			<p>Create or join a group to start swiping with your friends.</p>
-			<Button variant="primary" size="lg" onclick={() => goto('/profile')}>
-				Go to profile
+			<p>Pick a profile to start a session.</p>
+			<Button variant="primary" size="lg" onclick={() => goto('/')}>
+				Go home
 			</Button>
 		</div>
 	</div>
@@ -243,10 +271,18 @@
 					{/each}
 				</ul>
 
-				<a class="add-player" href="/">
-					<span aria-hidden="true">+</span>
-					Switch player
-				</a>
+				{#if profile.isAdmin}
+					<button
+						type="button"
+						class="add-player"
+						onclick={() => (addPlayerOpen = true)}
+						disabled={availableSeeds.length === 0}
+						title={availableSeeds.length === 0 ? 'All roster members already added' : 'Add another player to this session'}
+					>
+						<span aria-hidden="true">+</span>
+						Add Player
+					</button>
+				{/if}
 			</aside>
 
 			<!-- Games & Votes panel -->
@@ -353,17 +389,79 @@
 				A game becomes a match when every player swipes right.
 			</div>
 			<div class="footer__actions">
-				<Button variant="ghost" onclick={resetSession}>Reset session</Button>
-				<Button variant="secondary" onclick={() => goto('/admin')}>Add games</Button>
-				<Button
-					variant="primary"
-					onclick={() => goto('/swipe')}
-					disabled={games.catalog.length === 0}
-				>
-					{topMatch ? `Start with ${topMatch.name}` : 'Start swiping'}
-				</Button>
+				{#if profile.isAdmin}
+					<Button variant="ghost" onclick={resetSession}>Reset session</Button>
+					<Button variant="ghost" onclick={endSession}>Close session</Button>
+					<Button variant="secondary" onclick={() => goto('/admin')}>Add games</Button>
+					<Button
+						variant="primary"
+						onclick={() => goto('/swipe')}
+						disabled={games.catalog.length === 0}
+					>
+						{topMatch ? `Start with ${topMatch.name}` : 'Start swiping'}
+					</Button>
+				{/if}
 			</div>
 		</footer>
+	</div>
+{/if}
+
+{#if addPlayerOpen}
+	<div
+		class="addp-backdrop"
+		role="presentation"
+		onclick={() => (addPlayerOpen = false)}
+		onkeydown={(e) => { if (e.key === 'Escape') addPlayerOpen = false; }}
+	>
+		<div
+			class="addp-modal"
+			role="dialog"
+			tabindex="-1"
+			aria-modal="true"
+			aria-labelledby="addp-title"
+			onclick={(e) => e.stopPropagation()}
+			onkeydown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); addPlayerOpen = false; } }}
+		>
+			<header class="addp-modal__head">
+				<h3 id="addp-title" class="addp-modal__title">Add a player</h3>
+				<button
+					type="button"
+					class="addp-modal__close"
+					aria-label="Close"
+					onclick={() => (addPlayerOpen = false)}
+				>
+					<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+						stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<path d="M18 6L6 18" />
+						<path d="M6 6l12 12" />
+					</svg>
+				</button>
+			</header>
+			<p class="addp-modal__sub">
+				Pick from your roster. They'll show up as a player on the dashboard and will need to vote
+				before a game can match.
+			</p>
+			{#if availableSeeds.length === 0}
+				<div class="addp-modal__empty">Everyone in the roster is already in this session.</div>
+			{:else}
+				<ul class="addp-modal__list">
+					{#each availableSeeds as p (p.id)}
+						<li>
+							<button type="button" class="addp-row" onclick={() => addSeed(p.id)}>
+								<span class="addp-row__avatar" style:background={p.bg} style:color={p.fg}>
+									{p.initial}
+								</span>
+								<span class="addp-row__name">{p.name}</span>
+								{#if p.isAdmin}
+									<span class="addp-row__role">HOST</span>
+								{/if}
+								<span class="addp-row__add" aria-hidden="true">+ Add</span>
+							</button>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</div>
 	</div>
 {/if}
 
@@ -646,8 +744,141 @@
 		cursor: pointer;
 		text-decoration: none;
 	}
-	.add-player:hover {
+	.add-player:hover:not(:disabled) {
 		background: var(--surface-secondary);
+	}
+	.add-player:disabled {
+		opacity: 0.55;
+		cursor: not-allowed;
+	}
+
+	/* Add Player modal */
+	.addp-backdrop {
+		position: fixed;
+		inset: 0;
+		background: rgba(26, 26, 26, 0.45);
+		backdrop-filter: blur(3px);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 24px;
+		z-index: 90;
+	}
+	.addp-modal {
+		width: 100%;
+		max-width: 440px;
+		background: var(--surface-primary);
+		border-radius: var(--radius-xl);
+		border: 1px solid var(--border-subtle);
+		box-shadow:
+			0 10px 20px rgba(0, 0, 0, 0.08),
+			0 24px 60px rgba(0, 0, 0, 0.18);
+		padding: 20px 20px 16px;
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+	.addp-modal__head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+	.addp-modal__title {
+		margin: 0;
+		font-family: var(--font-heading);
+		font-size: var(--text-lg);
+		font-weight: var(--font-weight-semibold);
+		color: var(--foreground-primary);
+	}
+	.addp-modal__close {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 32px;
+		height: 32px;
+		border: 0;
+		border-radius: var(--radius-pill);
+		background: var(--surface-secondary);
+		color: var(--foreground-secondary);
+		cursor: pointer;
+	}
+	.addp-modal__close:hover {
+		background: var(--surface-tertiary);
+		color: var(--foreground-primary);
+	}
+	.addp-modal__sub {
+		margin: 0 0 6px;
+		font-family: var(--font-body);
+		font-size: var(--text-sm);
+		color: var(--foreground-secondary);
+	}
+	.addp-modal__empty {
+		padding: 24px;
+		text-align: center;
+		background: var(--surface-secondary);
+		border: 1px dashed var(--border-subtle);
+		border-radius: var(--radius-lg);
+		color: var(--foreground-secondary);
+		font-family: var(--font-body);
+		font-size: var(--text-sm);
+	}
+	.addp-modal__list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+	.addp-row {
+		display: inline-flex;
+		align-items: center;
+		gap: 12px;
+		width: 100%;
+		padding: 10px 12px;
+		border: 0;
+		border-radius: var(--radius-md);
+		background: transparent;
+		color: var(--foreground-primary);
+		font: inherit;
+		cursor: pointer;
+		text-align: left;
+	}
+	.addp-row:hover {
+		background: var(--surface-secondary);
+	}
+	.addp-row__avatar {
+		width: 36px;
+		height: 36px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: var(--radius-pill);
+		font-family: var(--font-heading);
+		font-size: var(--text-sm);
+		font-weight: var(--font-weight-semibold);
+	}
+	.addp-row__name {
+		flex: 1;
+		font-family: var(--font-body);
+		font-size: var(--text-base);
+		font-weight: var(--font-weight-medium);
+	}
+	.addp-row__role {
+		padding: 2px 8px;
+		border-radius: var(--radius-pill);
+		background: var(--accent-primary);
+		color: var(--accent-on);
+		font-family: var(--font-caption);
+		font-size: var(--text-xs);
+		font-weight: var(--font-weight-semibold);
+		letter-spacing: 0.4px;
+	}
+	.addp-row__add {
+		font-family: var(--font-body);
+		font-size: var(--text-sm);
+		font-weight: var(--font-weight-semibold);
+		color: var(--accent-primary);
 	}
 
 	/* Filters */

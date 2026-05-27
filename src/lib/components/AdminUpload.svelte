@@ -5,7 +5,6 @@
 	import { settings, setUseMockBgg } from '$lib/state/settings.svelte';
 	import { searchGames, fetchGame } from '$lib/bgg';
 	import type { BggSearchResult, Game } from '$lib/types';
-	import Header from './Header.svelte';
 	import Button from './Button.svelte';
 	import StatsRow from './StatsRow.svelte';
 	import GradientFade from './GradientFade.svelte';
@@ -111,10 +110,6 @@
 		goto('/swipe');
 	}
 
-	function goBack() {
-		history.length > 1 ? history.back() : goto('/');
-	}
-
 	function confirmClearCatalog() {
 		if (catalogCount === 0) return;
 		if (!confirm(`Remove all ${catalogCount} games from the catalog?`)) return;
@@ -126,34 +121,23 @@
 </script>
 
 <div class="page">
-	<Header title={undefined}>
-		{#snippet leading()}
-			<div class="brand">
-				<span class="brand__dot" aria-hidden="true"></span>
-				<span class="brand__name">GameMatch</span>
-			</div>
-		{/snippet}
-		{#snippet trailing()}
-			<div class="data-toggle" role="group" aria-label="Data source">
-				<NavPill active={settings.useMockBgg} onclick={() => setUseMockBgg(true)}>
-					Mock
-				</NavPill>
-				<NavPill active={!settings.useMockBgg} onclick={() => setUseMockBgg(false)}>
-					Live
-				</NavPill>
-			</div>
-			<button class="back" type="button" onclick={goBack}>
-				<span class="back__arrow" aria-hidden="true">&larr;</span>
-				Back
-			</button>
-		{/snippet}
-	</Header>
-
 	<div class="scroll">
 		<div class="body">
 			<section class="intro">
-				<h1 class="intro__title">Manage Game Library</h1>
-				<p class="intro__subtitle">Add board games for tonight's vote</p>
+				<div class="intro__row">
+					<div>
+						<h1 class="intro__title">Manage Game Library</h1>
+						<p class="intro__subtitle">Add board games for tonight's vote</p>
+					</div>
+					<div class="data-toggle" role="group" aria-label="Data source">
+						<NavPill active={settings.useMockBgg} onclick={() => setUseMockBgg(true)}>
+							Mock
+						</NavPill>
+						<NavPill active={!settings.useMockBgg} onclick={() => setUseMockBgg(false)}>
+							Live
+						</NavPill>
+					</div>
+				</div>
 			</section>
 
 			<section class="search" aria-label="Add a game">
@@ -303,51 +287,12 @@
 		background: var(--surface-primary);
 	}
 
-	.brand {
-		display: inline-flex;
-		align-items: center;
-		gap: 10px;
-	}
-	.brand__dot {
-		width: 28px;
-		height: 28px;
-		border-radius: var(--radius-pill);
-		background: var(--accent-primary);
-	}
-	.brand__name {
-		font-family: var(--font-heading);
-		font-size: var(--text-lg);
-		font-weight: var(--font-weight-semibold);
-		color: var(--foreground-primary);
-	}
-
 	.data-toggle {
 		display: inline-flex;
 		gap: 4px;
 		padding: 4px;
 		background: var(--surface-secondary);
 		border-radius: var(--radius-pill);
-	}
-
-	.back {
-		display: inline-flex;
-		align-items: center;
-		gap: 6px;
-		padding: 8px 14px;
-		border: 1px solid var(--border-subtle);
-		border-radius: var(--radius-md);
-		background: var(--surface-primary);
-		color: var(--foreground-secondary);
-		font-family: var(--font-body);
-		font-size: var(--text-sm);
-		font-weight: var(--font-weight-medium);
-		cursor: pointer;
-	}
-	.back:hover {
-		background: var(--surface-secondary);
-	}
-	.back__arrow {
-		font-size: var(--text-sm);
 	}
 
 	.scroll {
@@ -369,6 +314,12 @@
 		display: flex;
 		flex-direction: column;
 		gap: 6px;
+	}
+	.intro__row {
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 16px;
 	}
 	.intro__title {
 		font-family: var(--font-heading);

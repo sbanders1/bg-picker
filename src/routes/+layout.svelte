@@ -1,118 +1,131 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import '../app.css';
 	import { page } from '$app/state';
 	import favicon from '$lib/assets/favicon.svg';
-	import { init as initProfile, profile } from '$lib/state/profile.svelte';
+	import { init as initProfile, profile, clearProfile } from '$lib/state/profile.svelte';
 	import { init as initGames, games } from '$lib/state/games.svelte';
 	import { init as initGroup } from '$lib/state/group.svelte';
 	import { init as initSwipes, getCurrentIndex } from '$lib/state/swipes.svelte';
 	import { init as initSettings } from '$lib/state/settings.svelte';
+	import { init as initSessions } from '$lib/state/sessions.svelte';
 	import { profileById, initialsOf } from '$lib/profiles';
+	import { goto } from '$app/navigation';
 
 	let { children } = $props();
 
-	$effect(() => {
+	// Hydrate state from localStorage exactly once on mount. We use onMount (not
+	// $effect) per project rule: $effect is reserved for genuine outside-world side
+	// effects. initGroup runs BEFORE initProfile so the heal-check inside initProfile
+	// sees the current group correctly.
+	onMount(() => {
 		initSettings();
-		initProfile();
 		initGames();
 		initGroup();
+		initProfile();
 		initSwipes();
+		initSessions();
 	});
 
 	const path = $derived(page.url.pathname);
-	const onPicker = $derived(path === '/' || path === '/profile');
-	// Hide nav until a profile is picked — the picker is the entry, no chrome needed there.
-	const showNav = $derived(!!profile.id);
-	// Avatar appears once a profile is set, on every screen except the picker itself.
-	const showAvatar = $derived(!!profile.id && !onPicker);
+
+	// Chrome is hidden when nobody's logged in (so the picker stands alone on `/`).
+	const loggedIn = $derived(!!profile.id);
+
 	const seedForActive = $derived(profileById(profile.id));
 	const activeInitials = $derived(initialsOf(profile.name));
-	const homeActive = $derived(onPicker);
-	// Group tab is visible to the host always, and to non-hosts only after they've
-	// finished swiping every game in the catalog.
+
+	// Dashboard visibility: host always; non-host only after they've swiped all games.
 	const canSeeDashboard = $derived.by(() => {
-		if (!profile.id) return false;
+		if (!loggedIn) return false;
 		if (profile.isAdmin) return true;
 		const total = games.catalog.length;
 		if (total === 0) return false;
 		return getCurrentIndex(profile.id) >= total;
 	});
+
+	// Pill active matchers.
+	const isHomeActive = $derived(path === '/');
+	const isCatalogActive = $derived(path === '/admin');
+	const isDashboardActive = $derived(path === '/group' || path.startsWith('/match'));
+	const isSwipeActive = $derived(path === '/swipe');
+	const isSessionsActive = $derived(path === '/sessions');
+
+	function logout() {
+		menuOpen = false;
+		clearProfile();
+		goto('/');
+	}
+
+	let menuOpen = $state(false);
+	let menuEl: HTMLElement | null = $state(null);
+	let triggerEl: HTMLElement | null = $state(null);
+
+	function toggleMenu() {
+		menuOpen = !menuOpen;
+	}
+	function onDocClick(e: MouseEvent) {
+		if (!menuOpen) return;
+		const t = e.target as Node;
+		if (menuEl?.contains(t) || triggerEl?.contains(t)) return;
+		menuOpen = false;
+	}
+	function onWinKey(e: KeyboardEvent) {
+		if (menuOpen && e.key === 'Escape') {
+			menuOpen = false;
+			triggerEl?.focus();
+		}
+	}
 </script>
+
+<svelte:window onclick={onDocClick} onkeydown={onWinKey} />
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-{@render children()}
-
-{#if showAvatar}
-	<a
-		class="active-avatar"
-		href="/"
-		aria-label="Switch profile — currently {profile.name || 'Guest'}"
-		title="Switch profile"
-	>
-		<span
-			class="active-avatar__circle"
-			style:background={seedForActive?.bg ?? 'var(--surface-tertiary)'}
-			style:color={seedForActive?.fg ?? 'var(--foreground-secondary)'}
-		>
-			{activeInitials}
-		</span>
-	</a>
-{/if}
-
-{#if showNav}
-	<nav class="appnav" aria-label="Main navigation">
-		<a href="/" class="appnav__tab" class:appnav__tab--active={homeActive}>
-			<svg
-				viewBox="0 0 24 24"
-				width="22"
-				height="22"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				aria-hidden="true"
-			>
-				<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-				<circle cx="9" cy="7" r="4" />
-				<path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-				<path d="M16 3.13a4 4 0 0 1 0 7.75" />
-			</svg>
-			<span>Players</span>
+{#if loggedIn}
+	<header class="appbar" aria-label="Main navigation">
+		<a class="appbar__brand" href="/" aria-label="GameMatch home">
+			<span class="appbar__mark" aria-hidden="true"></span>
+			<span class="appbar__name">GameMatch</span>
 		</a>
 
-		<a href="/swipe" class="appnav__tab" class:appnav__tab--active={path === '/swipe'}>
-			<svg
-				viewBox="0 0 24 24"
-				width="22"
-				height="22"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-				aria-hidden="true"
-			>
-				<path
-					d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-				/>
-			</svg>
-			<span>Vote</span>
-		</a>
+		<nav class="pills" aria-label="Sections">
+			<a class="pill" class:pill--active={isHomeActive} href="/">Home</a>
+			<a class="pill" class:pill--active={isSwipeActive} href="/swipe">Vote</a>
+			{#if canSeeDashboard}
+				<a class="pill" class:pill--active={isDashboardActive} href="/group">Dashboard</a>
+			{/if}
+			{#if profile.isAdmin}
+				<a class="pill" class:pill--active={isCatalogActive} href="/admin">Catalog</a>
+				<a class="pill" class:pill--active={isSessionsActive} href="/sessions">Sessions</a>
+			{/if}
+		</nav>
 
-		{#if canSeeDashboard}
-			<a
-				href="/group"
-				class="appnav__tab"
-				class:appnav__tab--active={path === '/group' || path.startsWith('/match')}
+		<div class="appbar__right">
+			<button
+				bind:this={triggerEl}
+				type="button"
+				class="me-avatar"
+				onclick={toggleMenu}
+				aria-haspopup="menu"
+				aria-expanded={menuOpen}
+				aria-label="Account menu — signed in as {profile.name}"
 			>
+				<span
+					class="me-avatar__circle"
+					style:background={seedForActive?.bg ?? 'var(--surface-tertiary)'}
+					style:color={seedForActive?.fg ?? 'var(--foreground-secondary)'}
+				>
+					{activeInitials}
+				</span>
+				<span class="me-avatar__name">{profile.name.split(/\s+/)[0]}</span>
 				<svg
+					class="me-avatar__caret"
 					viewBox="0 0 24 24"
-					width="22"
-					height="22"
+					width="14"
+					height="14"
 					fill="none"
 					stroke="currentColor"
 					stroke-width="2"
@@ -120,112 +133,221 @@
 					stroke-linejoin="round"
 					aria-hidden="true"
 				>
-					<line x1="6" y1="20" x2="6" y2="14" />
-					<line x1="12" y1="20" x2="12" y2="10" />
-					<line x1="18" y1="20" x2="18" y2="4" />
+					<polyline points="6 9 12 15 18 9" />
 				</svg>
-				<span>Group</span>
-			</a>
+			</button>
 
-			<a href="/admin" class="appnav__tab" class:appnav__tab--active={path === '/admin'}>
-				<svg
-					viewBox="0 0 24 24"
-					width="22"
-					height="22"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					aria-hidden="true"
-				>
-					<rect x="3" y="3" width="7" height="7" />
-					<rect x="14" y="3" width="7" height="7" />
-					<rect x="14" y="14" width="7" height="7" />
-					<rect x="3" y="14" width="7" height="7" />
-				</svg>
-				<span>Catalog</span>
-			</a>
-		{/if}
-	</nav>
+			{#if menuOpen}
+				<div class="menu" bind:this={menuEl} role="menu" aria-label="Account">
+					<div class="menu__header">
+						<span class="menu__name">{profile.name}</span>
+						{#if profile.isAdmin}
+							<span class="menu__role">HOST</span>
+						{/if}
+					</div>
+					<button type="button" class="menu__item" role="menuitem" onclick={logout}>
+						<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+							stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+							<polyline points="16 17 21 12 16 7" />
+							<line x1="21" y1="12" x2="9" y2="12" />
+						</svg>
+						Log out
+					</button>
+				</div>
+			{/if}
+		</div>
+	</header>
 {/if}
+
+<div class:page-frame={loggedIn}>
+	{@render children()}
+</div>
 
 <style>
-	.appnav {
+	.page-frame {
+		padding-top: var(--nav-height);
+	}
+
+	.appbar {
 		position: fixed;
-		bottom: 0;
+		top: 0;
 		left: 0;
 		right: 0;
-		display: flex;
 		height: var(--nav-height);
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 24px;
+		padding: 0 40px;
 		background: var(--surface-primary);
-		border-top: 1px solid var(--border-subtle);
-		padding: 8px 0 12px;
-		box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.04);
+		border-bottom: 1px solid var(--border-subtle);
 		z-index: 50;
 	}
 
-	.appnav__tab {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
+	.appbar__brand {
+		display: inline-flex;
 		align-items: center;
-		justify-content: center;
-		gap: 4px;
+		gap: 10px;
 		text-decoration: none;
-		color: var(--foreground-tertiary);
-		font-family: var(--font-caption);
-		font-size: var(--text-xs);
-		font-weight: var(--font-weight-medium);
-		letter-spacing: 0.2px;
-		transition: color 0.15s ease;
+		color: inherit;
+		min-width: 140px;
 	}
-	.appnav__tab:hover {
-		color: var(--foreground-secondary);
+	.appbar__mark {
+		width: 28px;
+		height: 28px;
+		border-radius: var(--radius-md);
+		background: var(--accent-primary);
 	}
-	.appnav__tab--active {
-		color: var(--accent-primary);
+	.appbar__name {
+		font-family: var(--font-heading);
+		font-size: var(--text-lg);
+		font-weight: var(--font-weight-semibold);
+		color: var(--foreground-primary);
 	}
 
-	/* Floating top-right active-player avatar. Positioned BELOW the standard 80px
-	 * header band so it never overlaps each screen's own trailing header content
-	 * (Mock/Live toggle, Back, Switch Profile, etc.). On screens without a header
-	 * (GroupDashboard, GameProfile) it sits at the natural top-right of content. */
-	.active-avatar {
-		position: fixed;
-		top: 96px;
-		right: 18px;
+	.pills {
 		display: inline-flex;
-		text-decoration: none;
-		z-index: 60;
-		border-radius: var(--radius-pill);
+		align-items: center;
+		gap: 4px;
 	}
-	.active-avatar__circle {
-		width: 44px;
-		height: 44px;
+	.pill {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 8px 14px;
+		border-radius: var(--radius-pill);
+		background: transparent;
+		color: var(--foreground-secondary);
+		font-family: var(--font-body);
+		font-size: var(--text-sm);
+		font-weight: var(--font-weight-medium);
+		text-decoration: none;
+		cursor: pointer;
+		transition: background 0.15s ease, color 0.15s ease;
+	}
+	.pill:hover {
+		background: var(--surface-secondary);
+		color: var(--foreground-primary);
+	}
+	.pill--active {
+		background: var(--surface-secondary);
+		color: var(--foreground-primary);
+	}
+	.appbar__right {
+		position: relative;
+		display: inline-flex;
+		align-items: center;
+		gap: 12px;
+		min-width: 140px;
+		justify-content: flex-end;
+	}
+
+	.me-avatar {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		padding: 4px 12px 4px 4px;
+		border: 0;
+		border-radius: var(--radius-pill);
+		background: var(--surface-secondary);
+		text-decoration: none;
+		color: inherit;
+		cursor: pointer;
+		font: inherit;
+		transition: background 0.15s ease;
+	}
+	.me-avatar:hover,
+	.me-avatar[aria-expanded='true'] {
+		background: var(--surface-tertiary);
+	}
+	.me-avatar__circle {
+		width: 32px;
+		height: 32px;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		border-radius: var(--radius-pill);
 		font-family: var(--font-heading);
+		font-size: var(--text-xs);
+		font-weight: var(--font-weight-semibold);
+		letter-spacing: 0.4px;
+		border: 2px solid var(--surface-primary);
+	}
+	.me-avatar__name {
+		font-family: var(--font-body);
+		font-size: var(--text-sm);
+		font-weight: var(--font-weight-medium);
+		color: var(--foreground-primary);
+	}
+	.me-avatar__caret {
+		color: var(--foreground-tertiary);
+	}
+
+	/* Dropdown menu (anchored to the avatar). */
+	.menu {
+		position: absolute;
+		top: calc(100% + 8px);
+		right: 0;
+		min-width: 220px;
+		padding: 6px;
+		background: var(--surface-primary);
+		border: 1px solid var(--border-subtle);
+		border-radius: var(--radius-lg);
+		box-shadow:
+			0 6px 12px rgba(0, 0, 0, 0.05),
+			0 18px 40px rgba(0, 0, 0, 0.12);
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		z-index: 70;
+	}
+	.menu__header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 8px;
+		padding: 8px 10px;
+		border-bottom: 1px solid var(--border-subtle);
+		margin-bottom: 4px;
+	}
+	.menu__name {
+		font-family: var(--font-body);
 		font-size: var(--text-sm);
 		font-weight: var(--font-weight-semibold);
+		color: var(--foreground-primary);
+	}
+	.menu__role {
+		padding: 2px 8px;
+		border-radius: var(--radius-pill);
+		background: var(--accent-primary);
+		color: var(--accent-on);
+		font-family: var(--font-caption);
+		font-size: var(--text-xs);
+		font-weight: var(--font-weight-semibold);
 		letter-spacing: 0.5px;
-		box-shadow:
-			0 2px 6px rgba(0, 0, 0, 0.06),
-			0 8px 20px rgba(0, 0, 0, 0.12);
-		border: 2px solid var(--surface-primary);
-		transition: transform 0.15s ease, box-shadow 0.15s ease;
 	}
-	.active-avatar:hover .active-avatar__circle,
-	.active-avatar:focus-visible .active-avatar__circle {
-		transform: translateY(-2px);
-		box-shadow:
-			0 4px 8px rgba(0, 0, 0, 0.08),
-			0 12px 28px rgba(0, 0, 0, 0.16);
+	.menu__item {
+		display: inline-flex;
+		align-items: center;
+		gap: 10px;
+		width: 100%;
+		padding: 9px 10px;
+		border: 0;
+		border-radius: var(--radius-md);
+		background: transparent;
+		color: var(--foreground-primary);
+		font-family: var(--font-body);
+		font-size: var(--text-sm);
+		font-weight: var(--font-weight-medium);
+		cursor: pointer;
+		text-align: left;
 	}
-	.active-avatar:focus-visible {
+	.menu__item:hover {
+		background: var(--surface-secondary);
+	}
+	.menu__item:focus-visible {
 		outline: 2px solid var(--accent-primary);
-		outline-offset: 4px;
+		outline-offset: -2px;
 	}
 </style>

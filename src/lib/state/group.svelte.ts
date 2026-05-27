@@ -22,11 +22,22 @@ export function setGroup(g: Group) {
 export function joinGroup(profileId: string) {
 	if (!profileId) return;
 	if (!group.current) {
-		group.current = { id: 'default', name: "Tonight's group", memberIds: [profileId] };
+		group.current = {
+			id: 'default',
+			name: defaultSessionName(),
+			memberIds: [profileId],
+			startedAt: Date.now()
+		};
 	} else if (!group.current.memberIds.includes(profileId)) {
 		group.current.memberIds.push(profileId);
 	}
 	persist();
+}
+
+function defaultSessionName(): string {
+	const d = new Date();
+	const day = d.toLocaleDateString(undefined, { weekday: 'long' });
+	return `${day} Game Night`;
 }
 
 export function addMatch(m: Match) {

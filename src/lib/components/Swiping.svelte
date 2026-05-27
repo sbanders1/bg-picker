@@ -17,10 +17,14 @@
 	import Card from './Card.svelte';
 	import StatsRow from './StatsRow.svelte';
 
-	// Bounce to the picker if there's no active profile — prevents writing swipes
-	// with an empty profileId, which would corrupt the per-profile buckets.
+	// Bounce when there's no active profile (prevents empty-profileId swipes), or when
+	// there's no active session/group (post-close limbo — nothing to vote on).
 	$effect(() => {
-		if (!profile.id) goto('/');
+		if (!profile.id) {
+			goto('/');
+		} else if (!group.current) {
+			goto('/');
+		}
 	});
 
 	const total = $derived(games.catalog.length);
@@ -193,42 +197,6 @@
 <svelte:window onkeydown={handleKey} />
 
 <div class="swiping">
-	<header class="hdr">
-		<div class="hdr__brand">
-			<div class="hdr__logo" aria-hidden="true">
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-					stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-					<rect x="3" y="3" width="18" height="18" rx="3" />
-					<circle cx="8" cy="8" r="1.2" fill="currentColor" stroke="none" />
-					<circle cx="16" cy="8" r="1.2" fill="currentColor" stroke="none" />
-					<circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" />
-					<circle cx="8" cy="16" r="1.2" fill="currentColor" stroke="none" />
-					<circle cx="16" cy="16" r="1.2" fill="currentColor" stroke="none" />
-				</svg>
-			</div>
-			<span class="hdr__title">GameMatch</span>
-		</div>
-
-		<div class="chip">
-			<span class="chip__avatar" aria-hidden="true">{initial}</span>
-			<span class="chip__meta">
-				<span class="chip__label">Swiping as</span>
-				<span class="chip__name">{profile.name || 'Guest'}</span>
-			</span>
-		</div>
-
-		<button class="switch" type="button" onclick={() => goto('/profile')}>
-			<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-				stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-				<path d="M3 12a9 9 0 0 1 15-6.7L21 8" />
-				<path d="M21 3v5h-5" />
-				<path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
-				<path d="M3 21v-5h5" />
-			</svg>
-			Switch Profile
-		</button>
-	</header>
-
 	<main class="main">
 		{#if done}
 			<div class="empty">

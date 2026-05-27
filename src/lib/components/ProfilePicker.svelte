@@ -20,8 +20,8 @@
 			isAdmin: p.isAdmin ?? false
 		});
 		joinGroup(p.id);
-		// Hosts land on the catalog so they can set up the session.
-		goto(p.isAdmin ? '/admin' : '/swipe');
+		// Land on the root; the smart `/` renders PlayerHome once a profile is set.
+		goto('/');
 	}
 
 	function addNewPlayer() {

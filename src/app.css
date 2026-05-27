@@ -79,7 +79,5 @@ h1, h2, h3, h4, h5, h6 {
 
 button { font-family: inherit; }
 
-/* Reserve room at the bottom for the fixed in-app nav (rendered in +layout.svelte). */
-body {
-  padding-bottom: var(--nav-height);
-}
+/* Header height is reserved via a `.page-frame` wrapper in +layout.svelte (only when
+ * the global chrome is rendered — keeps the picker flush to the top when logged out). */
