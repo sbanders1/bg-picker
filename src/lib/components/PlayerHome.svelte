@@ -4,8 +4,12 @@
 	import { games } from '$lib/state/games.svelte';
 	import { group, joinGroup } from '$lib/state/group.svelte';
 	import { getHistory, getCurrentIndex } from '$lib/state/swipes.svelte';
+	import { applySessionFilters } from '$lib/filters';
 	import { profileById } from '$lib/profiles';
 	import Button from './Button.svelte';
+	import NewSessionModal from './NewSessionModal.svelte';
+
+	let newSessionOpen = $state(false);
 
 	// Guard: drop to picker if no profile selected.
 	$effect(() => {
@@ -31,7 +35,11 @@
 	// preserved across session closes, so catalog size alone is NOT a session signal.
 	const hasActiveSession = $derived(!!group.current);
 	const sessionName = $derived(group.current?.name ?? 'No active session');
-	const queueCount = $derived(games.catalog.length);
+	// queueCount reflects the FILTERED catalog when an active session has filters.
+	const filteredCatalog = $derived(
+		applySessionFilters(games.catalog, group.current?.filters)
+	);
+	const queueCount = $derived(filteredCatalog.length);
 	const playerCount = $derived(group.current?.memberIds.length ?? 0);
 	const matchCount = $derived(group.matches.length);
 	const stackIndex = $derived(getCurrentIndex(profile.id));
@@ -75,9 +83,8 @@
 	);
 
 	function startNewSession() {
-		joinGroup(profile.id);
-		// Host lands on catalog to set up; if catalog already has games, go straight to swiping.
-		goto(games.catalog.length === 0 ? '/admin' : '/swipe');
+		// Open the New Session modal so the host can name, roster, and filter in one shot.
+		newSessionOpen = true;
 	}
 </script>
 
@@ -306,6 +313,8 @@
 			</aside>
 		</section>
 	</main>
+
+	<NewSessionModal bind:open={newSessionOpen} />
 </div>
 
 <style>

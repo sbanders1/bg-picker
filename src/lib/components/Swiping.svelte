@@ -10,6 +10,7 @@
 		gameMatchedBy
 	} from '$lib/state/swipes.svelte';
 	import { getGame } from '$lib/state/games.svelte';
+	import { applySessionFilters } from '$lib/filters';
 	import { profileById } from '$lib/profiles';
 	import { profile } from '$lib/state/profile.svelte';
 	import { group, addMatch } from '$lib/state/group.svelte';
@@ -27,10 +28,12 @@
 		}
 	});
 
-	const total = $derived(games.catalog.length);
+	// Filtered catalog drives the swipe stack — honors complexity, play-time, fit, exclusions.
+	const sessionCatalog = $derived(applySessionFilters(games.catalog, group.current?.filters));
+	const total = $derived(sessionCatalog.length);
 	const index = $derived(getCurrentIndex(profile.id));
 	const history = $derived(getHistory(profile.id));
-	const currentGame = $derived(index < total ? games.catalog[index] : undefined);
+	const currentGame = $derived(index < total ? sessionCatalog[index] : undefined);
 	const done = $derived(total > 0 && index >= total);
 
 	// Progress dots — cap so a 50-game catalog doesn't render a centipede.
@@ -98,6 +101,19 @@
 		return `${g.averageWeight.toFixed(1)} weight`;
 	}
 
+	/**
+	 * Word-band label for averageWeight — mirrors the mapping in MatchCelebration
+	 * so the modal/celebration speak the same language. Returns "—" when null.
+	 */
+	function complexityBand(weight: number | null | undefined): string {
+		if (weight == null) return '—';
+		if (weight < 2) return 'Light';
+		if (weight < 3) return 'Medium-Light';
+		if (weight < 4) return 'Medium';
+		if (weight < 4.5) return 'Medium-Heavy';
+		return 'Heavy';
+	}
+
 	const stats = $derived.by(() => {
 		const items: string[] = [];
 		const p = playerCountLabel(currentGame);
@@ -113,24 +129,57 @@
 		[...(currentGame?.categories ?? []), ...(currentGame?.mechanics ?? [])].slice(0, 3)
 	);
 
+	/**
+	 * Returns true when every session member has voted on every session game.
+	 * Uses the filtered session catalog so excluded games aren't expected to be voted on.
+	 */
+	function isSessionComplete(): boolean {
+		if (!group.current) return false;
+		const memberCount = effectiveMemberIds.length;
+		const total = sessionCatalog.length;
+		if (memberCount === 0 || total === 0) return false;
+		const sessionGameIds = new Set(sessionCatalog.map((g) => g.id));
+		const validSwipes = getAllHistory().filter((s) => sessionGameIds.has(s.gameId));
+		return validSwipes.length >= memberCount * total;
+	}
+
+	/**
+	 * After the last vote in the session is cast, jump the swiper to the dashboard
+	 * so they see the live results. The session stays open — the host closes it
+	 * manually from /group when they're done reviewing.
+	 */
+	function maybeAdvanceToResults(): boolean {
+		if (!isSessionComplete()) return false;
+		goto('/group');
+		return true;
+	}
+
 	function onLike() {
 		if (!currentGame) return;
 		const gameId = currentGame.id;
 		like(gameId, profile.id);
 
-		// Real match detection: did this like complete a unanimous vote?
+		// Record any new unanimous match first so it lands in group.matches before
+		// we navigate away.
 		const memberIds = group.current?.memberIds ?? [];
 		const matchedBy = gameMatchedBy(gameId, memberIds);
 		const alreadyMatched = group.matches.some((m) => m.gameId === gameId);
-		if (matchedBy && !alreadyMatched) {
+		const newMatch = matchedBy && !alreadyMatched;
+		if (newMatch) {
 			addMatch({ gameId, at: Date.now(), profileIds: matchedBy });
-			goto('/match');
 		}
+
+		// Session complete → dashboard takes priority over /match. The match is
+		// still recorded in group.matches and visible on the dashboard immediately.
+		if (maybeAdvanceToResults()) return;
+
+		if (newMatch) goto('/match');
 	}
 
 	function onPass() {
 		if (!currentGame) return;
 		pass(currentGame.id, profile.id);
+		maybeAdvanceToResults();
 	}
 
 	function handleKey(e: KeyboardEvent) {
@@ -257,8 +306,9 @@
 					<div class="card__hero">
 						{#if currentGame.image || currentGame.thumbnail}
 							<img class="card__heroImg" src={currentGame.image ?? currentGame.thumbnail} alt="" />
+						{:else}
+							<span class="card__heroText">{heroLabel}</span>
 						{/if}
-						<span class="card__heroText">{heroLabel}</span>
 					</div>
 
 					<div class="card__body">
@@ -284,7 +334,7 @@
 						{/if}
 
 						{#if badges.length}
-							<div class="badges">
+							<div class="badges" aria-label="Mechanics and themes">
 								{#each badges as b (b)}
 									<span class="badge">{b}</span>
 								{/each}
@@ -442,9 +492,24 @@
 					{/if}
 				</header>
 
-				{#if inspectStats(inspectGame).length > 0}
-					<StatsRow items={inspectStats(inspectGame)} />
+				{#if inspectGame.designers && inspectGame.designers.length > 0}
+					<p class="modal__byline">By: {inspectGame.designers.join(', ')}</p>
 				{/if}
+
+				<div class="modal__stats">
+					<div class="modal__stat">
+						<span class="modal__stat-label">Players</span>
+						<span class="modal__stat-value">{playerCountLabel(inspectGame) ?? '—'}</span>
+					</div>
+					<div class="modal__stat">
+						<span class="modal__stat-label">Play time</span>
+						<span class="modal__stat-value">{playTimeLabel(inspectGame) ?? '—'}</span>
+					</div>
+					<div class="modal__stat">
+						<span class="modal__stat-label">Complexity</span>
+						<span class="modal__stat-value">{complexityBand(inspectGame.averageWeight)}</span>
+					</div>
+				</div>
 
 				{#if inspectGame.description}
 					<p class="modal__desc">{inspectGame.description}</p>
@@ -452,8 +517,16 @@
 
 				{#if inspectGame.categories && inspectGame.categories.length > 0}
 					<div class="modal__chips">
-						{#each inspectGame.categories.slice(0, 4) as cat (cat)}
+						{#each inspectGame.categories.slice(0, 5) as cat (cat)}
 							<span class="modal__chip">{cat}</span>
+						{/each}
+					</div>
+				{/if}
+
+				{#if inspectGame.mechanics && inspectGame.mechanics.length > 0}
+					<div class="modal__chips">
+						{#each inspectGame.mechanics.slice(0, 5) as mech (mech)}
+							<span class="modal__chip">{mech}</span>
 						{/each}
 					</div>
 				{/if}
@@ -695,11 +768,14 @@
 		}
 	}
 	.card__hero {
+		position: relative;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		height: 260px;
+		height: 220px;
+		flex: 0 0 auto;
 		background: linear-gradient(135deg, #5b7c99 0%, #3d5a73 100%);
+		overflow: hidden;
 	}
 	.card__heroText {
 		font-family: var(--font-heading);
@@ -748,13 +824,13 @@
 	}
 	.card__desc {
 		font-family: var(--font-body);
-		font-size: 13.5px;
-		line-height: 1.55;
+		font-size: var(--text-sm);
+		line-height: 1.5;
 		color: var(--foreground-secondary);
 		margin: 0;
 		display: -webkit-box;
-		-webkit-line-clamp: 4;
-		line-clamp: 4;
+		-webkit-line-clamp: 3;
+		line-clamp: 3;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 	}
@@ -763,6 +839,7 @@
 		flex-wrap: wrap;
 		gap: 6px;
 		margin-top: auto;
+		padding-top: 4px;
 	}
 	.badge {
 		font-family: var(--font-caption);
@@ -1127,11 +1204,41 @@
 		line-height: 1.55;
 		color: var(--foreground-secondary);
 		margin: 0;
-		display: -webkit-box;
-		-webkit-line-clamp: 4;
-		line-clamp: 4;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
+	}
+	.modal__byline {
+		font-family: var(--font-caption);
+		font-size: var(--text-xs);
+		color: var(--foreground-tertiary);
+		margin: -4px 0 0;
+	}
+	.modal__stats {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 8px;
+		padding: 10px 12px;
+		background: var(--surface-secondary);
+		border: 1px solid var(--border-subtle);
+		border-radius: var(--radius-md);
+	}
+	.modal__stat {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		min-width: 0;
+	}
+	.modal__stat-label {
+		font-family: var(--font-caption);
+		font-size: var(--text-xs);
+		font-weight: var(--font-weight-semibold);
+		color: var(--foreground-tertiary);
+		letter-spacing: 0.6px;
+		text-transform: uppercase;
+	}
+	.modal__stat-value {
+		font-family: var(--font-body);
+		font-size: var(--text-sm);
+		font-weight: var(--font-weight-semibold);
+		color: var(--foreground-primary);
 	}
 	.modal__chips {
 		display: flex;

@@ -1,6 +1,5 @@
-import type { Group, Match } from '$lib/types';
-
-const KEY = 'gm.group';
+import type { Group, Match, SessionFilters } from '$lib/types';
+import { fetchServerState, postAction } from '$lib/sync';
 
 export const group = $state<{
 	current: Group | null;
@@ -10,20 +9,30 @@ export const group = $state<{
 	matches: []
 });
 
-export function setGroup(g: Group) {
-	group.current = g;
-	persist();
+function defaultSessionName(): string {
+	const d = new Date();
+	const day = d.toLocaleDateString(undefined, { weekday: 'long' });
+	return `${day} Game Night`;
 }
 
-/**
- * Ensure a default group exists and the given profile is a member.
- * Idempotent — safe to call every time someone picks a profile.
- */
+export function setGroup(g: Group) {
+	group.current = g;
+	// Bypass via a createSession action — setGroup isn't called from the app
+	// flows anymore; kept as a public escape hatch but the server still hears.
+	postAction({
+		type: 'createSession',
+		name: g.name,
+		memberIds: g.memberIds,
+		filters: g.filters
+	});
+}
+
 export function joinGroup(profileId: string) {
 	if (!profileId) return;
+	// Optimistic local mirror of the server-side logic.
 	if (!group.current) {
 		group.current = {
-			id: 'default',
+			id: `g-${Date.now().toString(36)}`,
 			name: defaultSessionName(),
 			memberIds: [profileId],
 			startedAt: Date.now()
@@ -31,40 +40,70 @@ export function joinGroup(profileId: string) {
 	} else if (!group.current.memberIds.includes(profileId)) {
 		group.current.memberIds.push(profileId);
 	}
-	persist();
+	postAction({ type: 'joinGroup', profileId, defaultName: defaultSessionName() });
 }
 
-function defaultSessionName(): string {
-	const d = new Date();
-	const day = d.toLocaleDateString(undefined, { weekday: 'long' });
-	return `${day} Game Night`;
+export function removeMember(profileId: string) {
+	if (!group.current) return;
+	group.current.memberIds = group.current.memberIds.filter((id) => id !== profileId);
+	postAction({ type: 'removeMember', profileId });
+}
+
+export function createSession(opts: {
+	name?: string;
+	memberIds: string[];
+	filters?: SessionFilters;
+}) {
+	const members = opts.memberIds.filter((id) => !!id);
+	group.current = {
+		id: `g-${Date.now().toString(36)}`,
+		name: opts.name?.trim() || defaultSessionName(),
+		memberIds: members,
+		startedAt: Date.now(),
+		filters: opts.filters
+	};
+	group.matches = [];
+	postAction({
+		type: 'createSession',
+		name: opts.name,
+		memberIds: members,
+		filters: opts.filters
+	});
+}
+
+export function updateFilters(filters: SessionFilters | undefined) {
+	if (!group.current) return;
+	group.current.filters = filters;
+	// Express as a fresh createSession with the same name/members — keeps the
+	// action surface small. Resets matches; OK since changing filters mid-session
+	// invalidates them anyway.
+	postAction({
+		type: 'createSession',
+		name: group.current.name,
+		memberIds: group.current.memberIds,
+		filters
+	});
 }
 
 export function addMatch(m: Match) {
-	group.matches.push(m);
-	persist();
+	if (!group.matches.some((existing) => existing.gameId === m.gameId)) {
+		group.matches.push(m);
+	}
+	postAction({ type: 'addMatch', match: m });
 }
 
 export function clearGroup() {
 	group.current = null;
 	group.matches = [];
-	if (typeof localStorage !== 'undefined') localStorage.removeItem(KEY);
+	postAction({ type: 'clearGroup' });
 }
 
-function persist() {
-	if (typeof localStorage === 'undefined') return;
-	localStorage.setItem(KEY, JSON.stringify({ current: group.current, matches: group.matches }));
+export function applyServerSnapshot(snap: { current: Group | null; matches: Match[] }) {
+	group.current = snap.current;
+	group.matches = [...snap.matches];
 }
 
-export function init() {
-	if (typeof localStorage === 'undefined') return;
-	const raw = localStorage.getItem(KEY);
-	if (!raw) return;
-	try {
-		const parsed = JSON.parse(raw);
-		group.current = parsed.current ?? null;
-		group.matches = parsed.matches ?? [];
-	} catch {
-		/* corrupt entry — ignore */
-	}
+export async function init() {
+	const snap = await fetchServerState();
+	if (snap) applyServerSnapshot(snap.group);
 }

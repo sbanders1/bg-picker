@@ -32,9 +32,9 @@ export function init() {
 	if (raw) {
 		try {
 			const parsed = JSON.parse(raw);
-			// Migration: 'host' is no longer a distinct profile — it's a role on a seed profile.
-			// Drop a stale 'host' entry so the user re-picks a real seed (Alex/Sam) cleanly.
-			if (parsed?.id === 'host') {
+			// Migration: drop legacy seed ids no longer in the roster ('host' was the
+			// old admin entity; 'alex' and 'sam' were earlier seed defaults).
+			if (parsed?.id === 'host' || parsed?.id === 'alex' || parsed?.id === 'sam') {
 				localStorage.removeItem(KEY);
 				return;
 			}

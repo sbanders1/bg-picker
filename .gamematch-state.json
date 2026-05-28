@@ -1,0 +1,1212 @@
+{
+  "customProfiles": {
+    "items": [
+      {
+        "id": "c-mpoufzk0-abfb",
+        "name": "Melinda Potts",
+        "initial": "MP",
+        "bg": "var(--decor-sky)",
+        "fg": "#3F6FA8"
+      },
+      {
+        "id": "c-mpouzuo3-8ewz",
+        "name": "Dan Potts",
+        "initial": "DP",
+        "bg": "var(--decor-cream)",
+        "fg": "#A67E2F"
+      },
+      {
+        "id": "c-mpov03l5-ya6w",
+        "name": "Jandi Anderson",
+        "initial": "JA",
+        "bg": "var(--decor-lavender)",
+        "fg": "#7B4FA8"
+      }
+    ]
+  },
+  "games": {
+    "catalog": [
+      {
+        "id": 13,
+        "name": "CATAN",
+        "yearPublished": 1995,
+        "minPlayers": 3,
+        "maxPlayers": 4,
+        "minPlayTime": 60,
+        "maxPlayTime": 120,
+        "playingTime": 120,
+        "minAge": 10,
+        "description": "Pick up cards, trade resources, build settlements — the original gateway to modern board gaming. Each turn the dice decide which players' lands produce wheat, sheep, ore, brick, or wood.",
+        "image": "https://picsum.photos/seed/bg13/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg13/200/200",
+        "categories": [
+          "Economic",
+          "Negotiation"
+        ],
+        "mechanics": [
+          "Dice Rolling",
+          "Route Building",
+          "Trading"
+        ],
+        "designers": [
+          "Klaus Teuber"
+        ],
+        "usersRated": 124000,
+        "averageRating": 7.1,
+        "bayesAverage": 7.05,
+        "averageWeight": 2.32,
+        "photos": [
+          "https://picsum.photos/seed/bg13-1/900/600",
+          "https://picsum.photos/seed/bg13-2/900/600",
+          "https://picsum.photos/seed/bg13-3/900/600",
+          "https://picsum.photos/seed/bg13-4/900/600"
+        ]
+      },
+      {
+        "id": 266192,
+        "name": "Wingspan",
+        "yearPublished": 2019,
+        "minPlayers": 1,
+        "maxPlayers": 5,
+        "minPlayTime": 40,
+        "maxPlayTime": 70,
+        "playingTime": 70,
+        "minAge": 10,
+        "description": "A medium-weight, card-driven engine builder where players are bird enthusiasts seeking to discover and attract the best birds to their wildlife preserves.",
+        "image": "https://picsum.photos/seed/bg266192/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg266192/200/200",
+        "categories": [
+          "Animals",
+          "Card Game"
+        ],
+        "mechanics": [
+          "End Game Bonuses",
+          "Open Drafting",
+          "Set Collection"
+        ],
+        "designers": [
+          "Elizabeth Hargrave"
+        ],
+        "usersRated": 95000,
+        "averageRating": 8.1,
+        "bayesAverage": 7.84,
+        "averageWeight": 2.45,
+        "photos": [
+          "https://picsum.photos/seed/bg266192-1/900/600",
+          "https://picsum.photos/seed/bg266192-2/900/600",
+          "https://picsum.photos/seed/bg266192-3/900/600",
+          "https://picsum.photos/seed/bg266192-4/900/600"
+        ]
+      },
+      {
+        "id": 9209,
+        "name": "Ticket to Ride",
+        "yearPublished": 2004,
+        "minPlayers": 2,
+        "maxPlayers": 5,
+        "minPlayTime": 30,
+        "maxPlayTime": 60,
+        "playingTime": 60,
+        "minAge": 8,
+        "description": "A cross-country train adventure where players collect colored train cards to claim railway routes, building the longest continuous track to score the most points.",
+        "image": "https://picsum.photos/seed/bg9209/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg9209/200/200",
+        "categories": [
+          "Trains",
+          "Travel"
+        ],
+        "mechanics": [
+          "Set Collection",
+          "Route Building"
+        ],
+        "designers": [
+          "Alan R. Moon"
+        ],
+        "usersRated": 87000,
+        "averageRating": 7.4,
+        "bayesAverage": 7.2,
+        "averageWeight": 1.85,
+        "photos": [
+          "https://picsum.photos/seed/bg9209-1/900/600",
+          "https://picsum.photos/seed/bg9209-2/900/600",
+          "https://picsum.photos/seed/bg9209-3/900/600",
+          "https://picsum.photos/seed/bg9209-4/900/600"
+        ]
+      },
+      {
+        "id": 230802,
+        "name": "Azul",
+        "yearPublished": 2017,
+        "minPlayers": 2,
+        "maxPlayers": 4,
+        "minPlayTime": 30,
+        "maxPlayTime": 45,
+        "playingTime": 45,
+        "minAge": 8,
+        "description": "Tile-drafting and pattern-building in 15th-century Portugal. Players take turns drafting colored tiles from suppliers to their player board, scoring on completed rows and columns.",
+        "image": "https://picsum.photos/seed/bg230802/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg230802/200/200",
+        "categories": [
+          "Abstract Strategy",
+          "Puzzle"
+        ],
+        "mechanics": [
+          "Drafting",
+          "Pattern Building",
+          "Set Collection"
+        ],
+        "designers": [
+          "Michael Kiesling"
+        ],
+        "usersRated": 91000,
+        "averageRating": 7.8,
+        "bayesAverage": 7.62,
+        "averageWeight": 1.78,
+        "photos": [
+          "https://picsum.photos/seed/bg230802-1/900/600",
+          "https://picsum.photos/seed/bg230802-2/900/600",
+          "https://picsum.photos/seed/bg230802-3/900/600",
+          "https://picsum.photos/seed/bg230802-4/900/600"
+        ]
+      },
+      {
+        "id": 178900,
+        "name": "Codenames",
+        "yearPublished": 2015,
+        "minPlayers": 2,
+        "maxPlayers": 8,
+        "minPlayTime": 15,
+        "maxPlayTime": 20,
+        "playingTime": 15,
+        "minAge": 10,
+        "description": "Two teams race to identify their secret agents from a 25-word grid using one-word clues from their spymaster. Communicate cleverly without tipping off the other team.",
+        "image": "https://picsum.photos/seed/bg178900/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg178900/200/200",
+        "categories": [
+          "Party Game",
+          "Word Game"
+        ],
+        "mechanics": [
+          "Communication Limits",
+          "Team-Based Game"
+        ],
+        "designers": [
+          "Vlaada Chvátil"
+        ],
+        "usersRated": 88000,
+        "averageRating": 7.6,
+        "bayesAverage": 7.45,
+        "averageWeight": 1.27,
+        "photos": [
+          "https://picsum.photos/seed/bg178900-1/900/600",
+          "https://picsum.photos/seed/bg178900-2/900/600",
+          "https://picsum.photos/seed/bg178900-3/900/600",
+          "https://picsum.photos/seed/bg178900-4/900/600"
+        ]
+      },
+      {
+        "id": 30549,
+        "name": "Pandemic",
+        "yearPublished": 2008,
+        "minPlayers": 2,
+        "maxPlayers": 4,
+        "minPlayTime": 45,
+        "maxPlayTime": 60,
+        "playingTime": 45,
+        "minAge": 8,
+        "description": "A cooperative race against the clock to discover cures for four diseases threatening humanity. Each player takes a specialized role with unique abilities.",
+        "image": "https://picsum.photos/seed/bg30549/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg30549/200/200",
+        "categories": [
+          "Medical",
+          "Cooperative"
+        ],
+        "mechanics": [
+          "Action Points",
+          "Cooperative",
+          "Variable Player Powers"
+        ],
+        "designers": [
+          "Matt Leacock"
+        ],
+        "usersRated": 115000,
+        "averageRating": 7.6,
+        "bayesAverage": 7.43,
+        "averageWeight": 2.41,
+        "photos": [
+          "https://picsum.photos/seed/bg30549-1/900/600",
+          "https://picsum.photos/seed/bg30549-2/900/600",
+          "https://picsum.photos/seed/bg30549-3/900/600",
+          "https://picsum.photos/seed/bg30549-4/900/600"
+        ]
+      },
+      {
+        "id": 68448,
+        "name": "7 Wonders",
+        "yearPublished": 2010,
+        "minPlayers": 2,
+        "maxPlayers": 7,
+        "minPlayTime": 30,
+        "maxPlayTime": 30,
+        "playingTime": 30,
+        "minAge": 10,
+        "description": "Lead one of the ancient cities of the world. Draft cards over three ages to develop your civilization through commerce, science, military, and grand wonders.",
+        "image": "https://picsum.photos/seed/bg68448/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg68448/200/200",
+        "categories": [
+          "Ancient",
+          "Card Game",
+          "Civilization"
+        ],
+        "mechanics": [
+          "Card Drafting",
+          "Set Collection"
+        ],
+        "designers": [
+          "Antoine Bauza"
+        ],
+        "usersRated": 99000,
+        "averageRating": 7.7,
+        "bayesAverage": 7.54,
+        "averageWeight": 2.32,
+        "photos": [
+          "https://picsum.photos/seed/bg68448-1/900/600",
+          "https://picsum.photos/seed/bg68448-2/900/600",
+          "https://picsum.photos/seed/bg68448-3/900/600",
+          "https://picsum.photos/seed/bg68448-4/900/600"
+        ]
+      },
+      {
+        "id": 822,
+        "name": "Carcassonne",
+        "yearPublished": 2000,
+        "minPlayers": 2,
+        "maxPlayers": 5,
+        "minPlayTime": 30,
+        "maxPlayTime": 45,
+        "playingTime": 45,
+        "minAge": 7,
+        "description": "Build a medieval landscape one tile at a time — roads, cities, monasteries, and fields — claiming features with meeples to score across the unfolding map.",
+        "image": "https://picsum.photos/seed/bg822/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg822/200/200",
+        "categories": [
+          "Medieval",
+          "Territory Building"
+        ],
+        "mechanics": [
+          "Area Majority",
+          "Tile Placement"
+        ],
+        "designers": [
+          "Klaus-Jürgen Wrede"
+        ],
+        "usersRated": 119000,
+        "averageRating": 7.4,
+        "bayesAverage": 7.28,
+        "averageWeight": 1.91,
+        "photos": [
+          "https://picsum.photos/seed/bg822-1/900/600",
+          "https://picsum.photos/seed/bg822-2/900/600",
+          "https://picsum.photos/seed/bg822-3/900/600",
+          "https://picsum.photos/seed/bg822-4/900/600"
+        ]
+      },
+      {
+        "id": 148228,
+        "name": "Splendor",
+        "yearPublished": 2014,
+        "minPlayers": 2,
+        "maxPlayers": 4,
+        "minPlayTime": 30,
+        "maxPlayTime": 30,
+        "playingTime": 30,
+        "minAge": 10,
+        "description": "Gem merchants of the Renaissance. Collect raw gems, buy cards that produce permanent gem discounts, and attract the attention of visiting nobles to win.",
+        "image": "https://picsum.photos/seed/bg148228/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg148228/200/200",
+        "categories": [
+          "Card Game",
+          "Renaissance"
+        ],
+        "mechanics": [
+          "Engine Building",
+          "Set Collection"
+        ],
+        "designers": [
+          "Marc André"
+        ],
+        "usersRated": 84000,
+        "averageRating": 7.4,
+        "bayesAverage": 7.23,
+        "averageWeight": 1.79,
+        "photos": [
+          "https://picsum.photos/seed/bg148228-1/900/600",
+          "https://picsum.photos/seed/bg148228-2/900/600",
+          "https://picsum.photos/seed/bg148228-3/900/600",
+          "https://picsum.photos/seed/bg148228-4/900/600"
+        ]
+      },
+      {
+        "id": 174430,
+        "name": "Gloomhaven",
+        "yearPublished": 2017,
+        "minPlayers": 1,
+        "maxPlayers": 4,
+        "minPlayTime": 60,
+        "maxPlayTime": 120,
+        "playingTime": 120,
+        "minAge": 14,
+        "description": "A persistent, cooperative campaign of tactical combat in a unique fantasy world. Hours upon hours of branching scenarios as your party of mercenaries grows.",
+        "image": "https://picsum.photos/seed/bg174430/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg174430/200/200",
+        "categories": [
+          "Adventure",
+          "Cooperative",
+          "Fantasy"
+        ],
+        "mechanics": [
+          "Campaign",
+          "Hand Management",
+          "Variable Player Powers"
+        ],
+        "designers": [
+          "Isaac Childres"
+        ],
+        "usersRated": 64000,
+        "averageRating": 8.7,
+        "bayesAverage": 8.35,
+        "averageWeight": 3.91,
+        "photos": [
+          "https://picsum.photos/seed/bg174430-1/900/600",
+          "https://picsum.photos/seed/bg174430-2/900/600",
+          "https://picsum.photos/seed/bg174430-3/900/600",
+          "https://picsum.photos/seed/bg174430-4/900/600"
+        ]
+      },
+      {
+        "id": 162886,
+        "name": "Spirit Island",
+        "yearPublished": 2017,
+        "minPlayers": 1,
+        "maxPlayers": 4,
+        "minPlayTime": 90,
+        "maxPlayTime": 120,
+        "playingTime": 120,
+        "minAge": 14,
+        "description": "A cooperative, settler-destruction strategy game. Players are powerful spirits defending their island from colonizing invaders, channeling fear and elemental might.",
+        "image": "https://picsum.photos/seed/bg162886/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg162886/200/200",
+        "categories": [
+          "Cooperative",
+          "Fantasy",
+          "Strategy"
+        ],
+        "mechanics": [
+          "Asymmetric",
+          "Hand Management",
+          "Variable Player Powers"
+        ],
+        "designers": [
+          "R. Eric Reuss"
+        ],
+        "usersRated": 58000,
+        "averageRating": 8.4,
+        "bayesAverage": 8.1,
+        "averageWeight": 4.01,
+        "photos": [
+          "https://picsum.photos/seed/bg162886-1/900/600",
+          "https://picsum.photos/seed/bg162886-2/900/600",
+          "https://picsum.photos/seed/bg162886-3/900/600",
+          "https://picsum.photos/seed/bg162886-4/900/600"
+        ]
+      },
+      {
+        "id": 167791,
+        "name": "Terraforming Mars",
+        "yearPublished": 2016,
+        "minPlayers": 1,
+        "maxPlayers": 5,
+        "minPlayTime": 120,
+        "maxPlayTime": 120,
+        "playingTime": 120,
+        "minAge": 12,
+        "description": "Rival corporations work to make Mars habitable — raising temperature, oxygen, and water levels — while competing for milestones and awards on the red planet.",
+        "image": "https://picsum.photos/seed/bg167791/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg167791/200/200",
+        "categories": [
+          "Economic",
+          "Science Fiction",
+          "Space Exploration"
+        ],
+        "mechanics": [
+          "Card Drafting",
+          "Engine Building",
+          "Tile Placement"
+        ],
+        "designers": [
+          "Jacob Fryxelius"
+        ],
+        "usersRated": 102000,
+        "averageRating": 8.4,
+        "bayesAverage": 8.16,
+        "averageWeight": 3.27,
+        "photos": [
+          "https://picsum.photos/seed/bg167791-1/900/600",
+          "https://picsum.photos/seed/bg167791-2/900/600",
+          "https://picsum.photos/seed/bg167791-3/900/600",
+          "https://picsum.photos/seed/bg167791-4/900/600"
+        ]
+      },
+      {
+        "id": 224517,
+        "name": "Brass: Birmingham",
+        "yearPublished": 2018,
+        "minPlayers": 2,
+        "maxPlayers": 4,
+        "minPlayTime": 60,
+        "maxPlayTime": 120,
+        "playingTime": 120,
+        "minAge": 14,
+        "description": "An economic strategy game set in the industrial revolution. Build networks, develop industries, and bring iron, coal, beer, cotton, and pottery to market.",
+        "image": "https://picsum.photos/seed/bg224517/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg224517/200/200",
+        "categories": [
+          "Economic",
+          "Industry / Manufacturing"
+        ],
+        "mechanics": [
+          "Hand Management",
+          "Network Building",
+          "Loans"
+        ],
+        "designers": [
+          "Martin Wallace"
+        ],
+        "usersRated": 49000,
+        "averageRating": 8.6,
+        "bayesAverage": 8.42,
+        "averageWeight": 3.92,
+        "photos": [
+          "https://picsum.photos/seed/bg224517-1/900/600",
+          "https://picsum.photos/seed/bg224517-2/900/600",
+          "https://picsum.photos/seed/bg224517-3/900/600",
+          "https://picsum.photos/seed/bg224517-4/900/600"
+        ]
+      },
+      {
+        "id": 199792,
+        "name": "Everdell",
+        "yearPublished": 2018,
+        "minPlayers": 1,
+        "maxPlayers": 4,
+        "minPlayTime": 40,
+        "maxPlayTime": 80,
+        "playingTime": 80,
+        "minAge": 10,
+        "description": "Within the charming woodland of Everdell, build a city of critters and constructions through worker placement and tableau building over four seasons.",
+        "image": "https://picsum.photos/seed/bg199792/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg199792/200/200",
+        "categories": [
+          "Animals",
+          "City Building"
+        ],
+        "mechanics": [
+          "Tableau Building",
+          "Worker Placement"
+        ],
+        "designers": [
+          "James A. Wilson"
+        ],
+        "usersRated": 56000,
+        "averageRating": 8,
+        "bayesAverage": 7.78,
+        "averageWeight": 2.81,
+        "photos": [
+          "https://picsum.photos/seed/bg199792-1/900/600",
+          "https://picsum.photos/seed/bg199792-2/900/600",
+          "https://picsum.photos/seed/bg199792-3/900/600",
+          "https://picsum.photos/seed/bg199792-4/900/600"
+        ]
+      },
+      {
+        "id": 36218,
+        "name": "Dominion",
+        "yearPublished": 2008,
+        "minPlayers": 2,
+        "maxPlayers": 4,
+        "minPlayTime": 30,
+        "maxPlayTime": 30,
+        "playingTime": 30,
+        "minAge": 13,
+        "description": "The deckbuilder that started it all. Build your kingdom by acquiring a deck of cards from a shared market, each game's market shaped by which expansions you mix in.",
+        "image": "https://picsum.photos/seed/bg36218/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg36218/200/200",
+        "categories": [
+          "Card Game",
+          "Medieval"
+        ],
+        "mechanics": [
+          "Deck Building",
+          "Hand Management"
+        ],
+        "designers": [
+          "Donald X. Vaccarino"
+        ],
+        "usersRated": 88000,
+        "averageRating": 7.6,
+        "bayesAverage": 7.42,
+        "averageWeight": 2.36,
+        "photos": [
+          "https://picsum.photos/seed/bg36218-1/900/600",
+          "https://picsum.photos/seed/bg36218-2/900/600",
+          "https://picsum.photos/seed/bg36218-3/900/600",
+          "https://picsum.photos/seed/bg36218-4/900/600"
+        ]
+      },
+      {
+        "id": 296108,
+        "name": "Terraforming Mars: The Dice Game",
+        "yearPublished": 2024,
+        "minPlayers": 1,
+        "maxPlayers": 4,
+        "minPlayTime": 30,
+        "maxPlayTime": 60,
+        "playingTime": 45,
+        "minAge": 12,
+        "description": "A streamlined dice-driven take on Terraforming Mars. Roll your way through generations of corporate Mars development — raise temperature, oxygen, and water levels while racing rival CEOs to claim awards and milestones.",
+        "image": "https://picsum.photos/seed/bg296108/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg296108/200/200",
+        "categories": [
+          "Dice",
+          "Science Fiction",
+          "Space Exploration"
+        ],
+        "mechanics": [
+          "Dice Rolling",
+          "Engine Building",
+          "Set Collection"
+        ],
+        "designers": [
+          "Jacob Fryxelius"
+        ],
+        "usersRated": 6000,
+        "averageRating": 7.5,
+        "bayesAverage": 7.1,
+        "averageWeight": 2.1,
+        "photos": [
+          "https://picsum.photos/seed/bg296108-1/900/600",
+          "https://picsum.photos/seed/bg296108-2/900/600",
+          "https://picsum.photos/seed/bg296108-3/900/600",
+          "https://picsum.photos/seed/bg296108-4/900/600"
+        ]
+      },
+      {
+        "id": 244521,
+        "name": "The Quacks of Quedlinburg",
+        "yearPublished": 2018,
+        "minPlayers": 2,
+        "maxPlayers": 4,
+        "minPlayTime": 45,
+        "maxPlayTime": 45,
+        "playingTime": 45,
+        "minAge": 10,
+        "description": "Push-your-luck potion brewing in a medieval marketplace. Pull ingredient chips from your bag and add them to your bubbling pot — but go too far and the whole thing explodes. Spiel des Jahres Kennerspiel winner.",
+        "image": "https://picsum.photos/seed/bg244521/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg244521/200/200",
+        "categories": [
+          "Medieval",
+          "Humor"
+        ],
+        "mechanics": [
+          "Push Your Luck",
+          "Bag Building",
+          "Set Collection"
+        ],
+        "designers": [
+          "Wolfgang Warsch"
+        ],
+        "usersRated": 56000,
+        "averageRating": 7.85,
+        "bayesAverage": 7.65,
+        "averageWeight": 1.95,
+        "photos": [
+          "https://picsum.photos/seed/bg244521-1/900/600",
+          "https://picsum.photos/seed/bg244521-2/900/600",
+          "https://picsum.photos/seed/bg244521-3/900/600",
+          "https://picsum.photos/seed/bg244521-4/900/600"
+        ]
+      },
+      {
+        "id": 312484,
+        "name": "Lost Ruins of Arnak",
+        "yearPublished": 2020,
+        "minPlayers": 1,
+        "maxPlayers": 4,
+        "minPlayTime": 90,
+        "maxPlayTime": 120,
+        "playingTime": 120,
+        "minAge": 12,
+        "description": "On a newly discovered island, rival archaeologists race to claim relics, unlock ancient temples, and outmaneuver each other. Combines deckbuilding with worker placement and exploration.",
+        "image": "https://picsum.photos/seed/bg312484/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg312484/200/200",
+        "categories": [
+          "Adventure",
+          "Exploration",
+          "Mythology"
+        ],
+        "mechanics": [
+          "Deck Building",
+          "Worker Placement",
+          "Tile Placement"
+        ],
+        "designers": [
+          "Elwen",
+          "Mín"
+        ],
+        "usersRated": 65000,
+        "averageRating": 8.1,
+        "bayesAverage": 7.9,
+        "averageWeight": 2.76,
+        "photos": [
+          "https://picsum.photos/seed/bg312484-1/900/600",
+          "https://picsum.photos/seed/bg312484-2/900/600",
+          "https://picsum.photos/seed/bg312484-3/900/600",
+          "https://picsum.photos/seed/bg312484-4/900/600"
+        ]
+      },
+      {
+        "id": 410201,
+        "name": "Wyrmspan",
+        "yearPublished": 2024,
+        "minPlayers": 1,
+        "maxPlayers": 5,
+        "minPlayTime": 60,
+        "maxPlayTime": 90,
+        "playingTime": 80,
+        "minAge": 14,
+        "description": "A card-driven engine builder where you excavate underground caves and entice dragons to nest in your sanctuary. A heavier cousin of Wingspan with the same satisfying chain-of-effects feel.",
+        "image": "https://picsum.photos/seed/bg410201/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg410201/200/200",
+        "categories": [
+          "Animals",
+          "Card Game",
+          "Fantasy"
+        ],
+        "mechanics": [
+          "Engine Building",
+          "Worker Placement",
+          "Set Collection"
+        ],
+        "designers": [
+          "Connie Vogelmann"
+        ],
+        "usersRated": 11000,
+        "averageRating": 8.05,
+        "bayesAverage": 7.7,
+        "averageWeight": 2.75,
+        "photos": [
+          "https://picsum.photos/seed/bg410201-1/900/600",
+          "https://picsum.photos/seed/bg410201-2/900/600",
+          "https://picsum.photos/seed/bg410201-3/900/600",
+          "https://picsum.photos/seed/bg410201-4/900/600"
+        ]
+      },
+      {
+        "id": 436126,
+        "name": "Finspan",
+        "yearPublished": 2025,
+        "minPlayers": 1,
+        "maxPlayers": 5,
+        "minPlayTime": 45,
+        "maxPlayTime": 60,
+        "playingTime": 50,
+        "minAge": 10,
+        "description": "The aquatic entry in the Wingspan family. Dive into ocean ecosystems and collect fish for your engine — a lighter, more approachable take on the bird-watching original.",
+        "image": "https://picsum.photos/seed/bg436126/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg436126/200/200",
+        "categories": [
+          "Animals",
+          "Card Game",
+          "Nautical"
+        ],
+        "mechanics": [
+          "Engine Building",
+          "Set Collection",
+          "Open Drafting"
+        ],
+        "designers": [
+          "David Gordon",
+          "Michael O’Connell"
+        ],
+        "usersRated": 4500,
+        "averageRating": 7.8,
+        "bayesAverage": 7.3,
+        "averageWeight": 1.9,
+        "photos": [
+          "https://picsum.photos/seed/bg436126-1/900/600",
+          "https://picsum.photos/seed/bg436126-2/900/600",
+          "https://picsum.photos/seed/bg436126-3/900/600",
+          "https://picsum.photos/seed/bg436126-4/900/600"
+        ]
+      },
+      {
+        "id": 197435,
+        "name": "Gizmos",
+        "yearPublished": 2018,
+        "minPlayers": 2,
+        "maxPlayers": 4,
+        "minPlayTime": 40,
+        "maxPlayTime": 50,
+        "playingTime": 45,
+        "minAge": 14,
+        "description": "Build chain-reaction engines of energy marbles to construct gizmos faster than your rivals. Each card you buy triggers more from the future cards in your tableau — a satisfying combo cascade.",
+        "image": "https://picsum.photos/seed/bg197435/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg197435/200/200",
+        "categories": [
+          "Science Fiction",
+          "Card Game"
+        ],
+        "mechanics": [
+          "Engine Building",
+          "Set Collection"
+        ],
+        "designers": [
+          "Phil Walker-Harding"
+        ],
+        "usersRated": 27000,
+        "averageRating": 7.45,
+        "bayesAverage": 7.1,
+        "averageWeight": 1.74,
+        "photos": [
+          "https://picsum.photos/seed/bg197435-1/900/600",
+          "https://picsum.photos/seed/bg197435-2/900/600",
+          "https://picsum.photos/seed/bg197435-3/900/600",
+          "https://picsum.photos/seed/bg197435-4/900/600"
+        ]
+      },
+      {
+        "id": 286096,
+        "name": "Tapestry",
+        "yearPublished": 2019,
+        "minPlayers": 1,
+        "maxPlayers": 5,
+        "minPlayTime": 90,
+        "maxPlayTime": 120,
+        "playingTime": 120,
+        "minAge": 12,
+        "description": "Advance your civilization through four tracks — Science, Technology, Exploration, and Military — across the ages. Asymmetric civilizations and one-shot tapestry cards keep each game unique.",
+        "image": "https://picsum.photos/seed/bg286096/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg286096/200/200",
+        "categories": [
+          "Civilization",
+          "Economic"
+        ],
+        "mechanics": [
+          "Engine Building",
+          "Tile Placement",
+          "Variable Player Powers"
+        ],
+        "designers": [
+          "Jamey Stegmaier"
+        ],
+        "usersRated": 40000,
+        "averageRating": 7.2,
+        "bayesAverage": 6.9,
+        "averageWeight": 2.94,
+        "photos": [
+          "https://picsum.photos/seed/bg286096-1/900/600",
+          "https://picsum.photos/seed/bg286096-2/900/600",
+          "https://picsum.photos/seed/bg286096-3/900/600",
+          "https://picsum.photos/seed/bg286096-4/900/600"
+        ]
+      },
+      {
+        "id": 120677,
+        "name": "Terra Mystica",
+        "yearPublished": 2012,
+        "minPlayers": 2,
+        "maxPlayers": 5,
+        "minPlayTime": 60,
+        "maxPlayTime": 150,
+        "playingTime": 130,
+        "minAge": 12,
+        "description": "Fourteen fantasy factions vie for territory by terraforming the land to match their preferred terrain. Master your faction's quirks, advance cults, and time your power burn for a punishing strategic feast.",
+        "image": "https://picsum.photos/seed/bg120677/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg120677/200/200",
+        "categories": [
+          "Fantasy",
+          "Territory Building"
+        ],
+        "mechanics": [
+          "Area Majority",
+          "Action Selection",
+          "Variable Player Powers"
+        ],
+        "designers": [
+          "Helge Ostertag",
+          "Jens Drögemüller"
+        ],
+        "usersRated": 64000,
+        "averageRating": 8.1,
+        "bayesAverage": 7.95,
+        "averageWeight": 3.95,
+        "photos": [
+          "https://picsum.photos/seed/bg120677-1/900/600",
+          "https://picsum.photos/seed/bg120677-2/900/600",
+          "https://picsum.photos/seed/bg120677-3/900/600",
+          "https://picsum.photos/seed/bg120677-4/900/600"
+        ]
+      },
+      {
+        "id": 295947,
+        "name": "Cascadia",
+        "yearPublished": 2021,
+        "minPlayers": 1,
+        "maxPlayers": 4,
+        "minPlayTime": 30,
+        "maxPlayTime": 45,
+        "playingTime": 40,
+        "minAge": 10,
+        "description": "Build the Pacific Northwest one tile at a time. Pair habitats with the right wildlife to score across five animal types — bears, salmon, hawks, elk, and foxes. Spiel des Jahres 2022 winner.",
+        "image": "https://picsum.photos/seed/bg295947/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg295947/200/200",
+        "categories": [
+          "Animals",
+          "Nature",
+          "Abstract Strategy"
+        ],
+        "mechanics": [
+          "Tile Placement",
+          "Pattern Building",
+          "Drafting"
+        ],
+        "designers": [
+          "Randy Flynn"
+        ],
+        "usersRated": 50000,
+        "averageRating": 7.9,
+        "bayesAverage": 7.7,
+        "averageWeight": 1.84,
+        "photos": [
+          "https://picsum.photos/seed/bg295947-1/900/600",
+          "https://picsum.photos/seed/bg295947-2/900/600",
+          "https://picsum.photos/seed/bg295947-3/900/600",
+          "https://picsum.photos/seed/bg295947-4/900/600"
+        ]
+      },
+      {
+        "id": 123540,
+        "name": "Tokaido",
+        "yearPublished": 2012,
+        "minPlayers": 1,
+        "maxPlayers": 5,
+        "minPlayTime": 30,
+        "maxPlayTime": 45,
+        "playingTime": 45,
+        "minAge": 8,
+        "description": "A zen pilgrimage along Japan's East Sea Road. Visit shrines, bathe in hot springs, paint vistas, and meet travelers as you journey from Kyoto to Edo collecting the most memorable experiences.",
+        "image": "https://picsum.photos/seed/bg123540/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg123540/200/200",
+        "categories": [
+          "Travel",
+          "Japan"
+        ],
+        "mechanics": [
+          "Action Selection",
+          "Set Collection"
+        ],
+        "designers": [
+          "Antoine Bauza"
+        ],
+        "usersRated": 41000,
+        "averageRating": 7.25,
+        "bayesAverage": 7,
+        "averageWeight": 1.83,
+        "photos": [
+          "https://picsum.photos/seed/bg123540-1/900/600",
+          "https://picsum.photos/seed/bg123540-2/900/600",
+          "https://picsum.photos/seed/bg123540-3/900/600",
+          "https://picsum.photos/seed/bg123540-4/900/600"
+        ]
+      },
+      {
+        "id": 380135,
+        "name": "Dead Cells: The Rogue-Lite Board Game",
+        "yearPublished": 2024,
+        "minPlayers": 1,
+        "maxPlayers": 4,
+        "minPlayTime": 45,
+        "maxPlayTime": 75,
+        "playingTime": 60,
+        "minAge": 14,
+        "description": "A cooperative roguelite adapted from the cult video game. Build your deck, defy the King, and die forward — each run unlocks new tools and routes for the next attempt.",
+        "image": "https://picsum.photos/seed/bg380135/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg380135/200/200",
+        "categories": [
+          "Adventure",
+          "Video Game Theme",
+          "Fighting"
+        ],
+        "mechanics": [
+          "Deck Building",
+          "Cooperative",
+          "Campaign"
+        ],
+        "designers": [
+          "Antonin Boccara"
+        ],
+        "usersRated": 5000,
+        "averageRating": 8.3,
+        "bayesAverage": 7.6,
+        "averageWeight": 2.5,
+        "photos": [
+          "https://picsum.photos/seed/bg380135-1/900/600",
+          "https://picsum.photos/seed/bg380135-2/900/600",
+          "https://picsum.photos/seed/bg380135-3/900/600",
+          "https://picsum.photos/seed/bg380135-4/900/600"
+        ]
+      },
+      {
+        "id": 338960,
+        "name": "Slay the Spire: The Board Game",
+        "yearPublished": 2024,
+        "minPlayers": 1,
+        "maxPlayers": 4,
+        "minPlayTime": 60,
+        "maxPlayTime": 120,
+        "playingTime": 90,
+        "minAge": 14,
+        "description": "The acclaimed roguelike deckbuilder reimagined for the table. Climb the spire as one of four heroes, crafting your build through three escalating acts of branching paths, elite fights, and brutal bosses.",
+        "image": "https://picsum.photos/seed/bg338960/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg338960/200/200",
+        "categories": [
+          "Card Game",
+          "Video Game Theme",
+          "Fighting"
+        ],
+        "mechanics": [
+          "Deck Building",
+          "Cooperative",
+          "Variable Player Powers"
+        ],
+        "designers": [
+          "Anthony Giovannetti",
+          "Casey Yano",
+          "Gary Dworetsky"
+        ],
+        "usersRated": 6000,
+        "averageRating": 8.7,
+        "bayesAverage": 7.85,
+        "averageWeight": 2.94,
+        "photos": [
+          "https://picsum.photos/seed/bg338960-1/900/600",
+          "https://picsum.photos/seed/bg338960-2/900/600",
+          "https://picsum.photos/seed/bg338960-3/900/600",
+          "https://picsum.photos/seed/bg338960-4/900/600"
+        ]
+      },
+      {
+        "id": 305682,
+        "name": "Rolling Realms",
+        "yearPublished": 2021,
+        "minPlayers": 1,
+        "maxPlayers": 6,
+        "minPlayTime": 30,
+        "maxPlayTime": 45,
+        "playingTime": 30,
+        "minAge": 10,
+        "description": "A roll-and-write tour through 11 mini-games inspired by Stonemaier's catalog (Wingspan, Scythe, Viticulture). Roll shared dice, mark your realms, chase stars.",
+        "image": "https://picsum.photos/seed/bg305682/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg305682/200/200",
+        "categories": [
+          "Dice",
+          "Family"
+        ],
+        "mechanics": [
+          "Roll and Write",
+          "Variable Player Powers"
+        ],
+        "designers": [
+          "Jamey Stegmaier"
+        ],
+        "usersRated": 13000,
+        "averageRating": 7.2,
+        "bayesAverage": 6.9,
+        "averageWeight": 1.59,
+        "photos": [
+          "https://picsum.photos/seed/bg305682-1/900/600",
+          "https://picsum.photos/seed/bg305682-2/900/600",
+          "https://picsum.photos/seed/bg305682-3/900/600",
+          "https://picsum.photos/seed/bg305682-4/900/600"
+        ]
+      },
+      {
+        "id": 416831,
+        "name": "Rolling Realms Redux",
+        "yearPublished": 2024,
+        "minPlayers": 1,
+        "maxPlayers": 6,
+        "minPlayTime": 30,
+        "maxPlayTime": 45,
+        "playingTime": 30,
+        "minAge": 10,
+        "description": "A standalone follow-up to Rolling Realms with 12 brand-new realms and fresh roll-and-write minigames. Same compact format and variety, all new puzzles.",
+        "image": "https://picsum.photos/seed/bg416831/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg416831/200/200",
+        "categories": [
+          "Dice",
+          "Family"
+        ],
+        "mechanics": [
+          "Roll and Write",
+          "Variable Player Powers"
+        ],
+        "designers": [
+          "Jamey Stegmaier",
+          "Karel Titeca"
+        ],
+        "usersRated": 3500,
+        "averageRating": 7.9,
+        "bayesAverage": 7.3,
+        "averageWeight": 1.55,
+        "photos": [
+          "https://picsum.photos/seed/bg416831-1/900/600",
+          "https://picsum.photos/seed/bg416831-2/900/600",
+          "https://picsum.photos/seed/bg416831-3/900/600",
+          "https://picsum.photos/seed/bg416831-4/900/600"
+        ]
+      },
+      {
+        "id": 169786,
+        "name": "Scythe",
+        "yearPublished": 2016,
+        "minPlayers": 1,
+        "maxPlayers": 5,
+        "minPlayTime": 90,
+        "maxPlayTime": 115,
+        "playingTime": 115,
+        "minAge": 14,
+        "description": "Alternate-history 1920s Eastern Europe. Lead one of five asymmetric factions and their towering mechs across the map — harvesting, recruiting, conquering, and earning the most coin.",
+        "image": "https://picsum.photos/seed/bg169786/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg169786/200/200",
+        "categories": [
+          "Economic",
+          "Science Fiction",
+          "Territory Building"
+        ],
+        "mechanics": [
+          "Area Majority",
+          "Engine Building",
+          "Variable Player Powers"
+        ],
+        "designers": [
+          "Jamey Stegmaier"
+        ],
+        "usersRated": 113000,
+        "averageRating": 8.15,
+        "bayesAverage": 8.05,
+        "averageWeight": 3.43,
+        "photos": [
+          "https://picsum.photos/seed/bg169786-1/900/600",
+          "https://picsum.photos/seed/bg169786-2/900/600",
+          "https://picsum.photos/seed/bg169786-3/900/600",
+          "https://picsum.photos/seed/bg169786-4/900/600"
+        ]
+      },
+      {
+        "id": 379078,
+        "name": "Expeditions (Scythe Sequel)",
+        "yearPublished": 2023,
+        "minPlayers": 1,
+        "maxPlayers": 5,
+        "minPlayTime": 60,
+        "maxPlayTime": 90,
+        "playingTime": 80,
+        "minAge": 14,
+        "description": "Years after the events of Scythe, your mechs venture north of the great barrier to investigate a fallen meteor. A lighter, exploration-driven follow-up with card-drafting and puzzle-y movement.",
+        "image": "https://picsum.photos/seed/bg379078/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg379078/200/200",
+        "categories": [
+          "Adventure",
+          "Exploration",
+          "Science Fiction"
+        ],
+        "mechanics": [
+          "Card Drafting",
+          "Deck Building",
+          "Variable Player Powers"
+        ],
+        "designers": [
+          "Jamey Stegmaier"
+        ],
+        "usersRated": 17000,
+        "averageRating": 7.9,
+        "bayesAverage": 7.55,
+        "averageWeight": 2.83,
+        "photos": [
+          "https://picsum.photos/seed/bg379078-1/900/600",
+          "https://picsum.photos/seed/bg379078-2/900/600",
+          "https://picsum.photos/seed/bg379078-3/900/600",
+          "https://picsum.photos/seed/bg379078-4/900/600"
+        ]
+      },
+      {
+        "id": 422780,
+        "name": "Mistborn: The Deckbuilding Game",
+        "yearPublished": 2024,
+        "minPlayers": 1,
+        "maxPlayers": 4,
+        "minPlayTime": 30,
+        "maxPlayTime": 60,
+        "playingTime": 45,
+        "minAge": 14,
+        "description": "Allomantic battles in Brandon Sanderson's Mistborn world. Burn metals to fuel powers, recruit allies, and outwit rivals in fast-paced deckbuilder duels.",
+        "image": "https://picsum.photos/seed/bg422780/600/400",
+        "thumbnail": "https://picsum.photos/seed/bg422780/200/200",
+        "categories": [
+          "Card Game",
+          "Fantasy",
+          "Novel-based"
+        ],
+        "mechanics": [
+          "Deck Building",
+          "Hand Management",
+          "Take That"
+        ],
+        "designers": [
+          "Kevin Wilson"
+        ],
+        "usersRated": 4000,
+        "averageRating": 7.65,
+        "bayesAverage": 7.1,
+        "averageWeight": 2.4,
+        "photos": [
+          "https://picsum.photos/seed/bg422780-1/900/600",
+          "https://picsum.photos/seed/bg422780-2/900/600",
+          "https://picsum.photos/seed/bg422780-3/900/600",
+          "https://picsum.photos/seed/bg422780-4/900/600"
+        ]
+      }
+    ]
+  },
+  "group": {
+    "current": {
+      "id": "g-mpoufzmu",
+      "name": "Wednesday Game Night",
+      "memberIds": [
+        "c-mpoufzk0-abfb",
+        "c-mpouzuo3-8ewz",
+        "c-mpov03l5-ya6w",
+        "blake"
+      ],
+      "startedAt": 1779933491238
+    },
+    "matches": []
+  },
+  "swipes": {
+    "byProfile": {}
+  },
+  "sessions": {
+    "closed": []
+  }
+}

@@ -3,8 +3,9 @@
 	import { group } from '$lib/state/group.svelte';
 	import { games } from '$lib/state/games.svelte';
 	import { getAllHistory, getHistory, getCurrentIndex, resetAll } from '$lib/state/swipes.svelte';
-	import { clearGroup, joinGroup } from '$lib/state/group.svelte';
+	import { clearGroup, joinGroup, removeMember } from '$lib/state/group.svelte';
 	import { closeSession } from '$lib/state/sessions.svelte';
+	import { applySessionFilters } from '$lib/filters';
 	import { profileById, SEED_PROFILES } from '$lib/profiles';
 	import { profile } from '$lib/state/profile.svelte';
 	import Button from './Button.svelte';
@@ -32,7 +33,10 @@
 			return;
 		}
 		if (profile.isAdmin) return;
-		const total = games.catalog.length;
+		// Non-host: gate on the SESSION catalog so they unlock the dashboard once
+		// they've voted on every game that's actually in play (excluded / filtered
+		// games shouldn't be required to swipe through).
+		const total = applySessionFilters(games.catalog, group.current?.filters).length;
 		const idx = getCurrentIndex(profile.id);
 		if (total === 0 || idx < total) {
 			goto('/swipe');
@@ -42,22 +46,22 @@
 	const allSwipes = $derived(getAllHistory());
 	const swiperIds = $derived(new Set(allSwipes.map((s) => s.profileId)));
 
-	// Effective roster = explicit group members ∪ anyone who has swiped.
-	// Anyone who has swiped is implicitly part of this session, even if their
-	// memberIds entry got lost (e.g. localStorage migration, manual reset).
-	const memberIds = $derived.by(() => {
-		const base = group.current?.memberIds ?? [];
-		const out = [...base];
-		for (const id of swiperIds) {
-			if (!out.includes(id)) out.push(id);
-		}
-		return out;
-	});
+	// "Session catalog" = the games actually in play after the host's filters
+	// (complexity range, time range, fit, exclusions). Progress + the games table
+	// both run off this; the unfiltered catalog is no longer the source of truth.
+	const sessionCatalog = $derived(applySessionFilters(games.catalog, group.current?.filters));
+
+	// Session members are now authoritative: `createSession` and `joinGroup` both
+	// set memberIds explicitly, and closing/starting a session resets swipes — so
+	// we no longer need to union in stale swiperIds from prior sessions.
+	const memberIds = $derived(group.current?.memberIds ?? []);
 	const memberCount = $derived(memberIds.length);
 	const doneCount = $derived(memberIds.filter((id) => swiperIds.has(id)).length);
 
-	// Sessions progress: percentage of (members × games) swipes covered.
-	const totalPossibleSwipes = $derived(memberCount * games.catalog.length);
+	// Session progress: percentage of (members × SESSION games) swipes covered.
+	// Uses the filtered catalog so 100% means "every member voted on every game
+	// that's actually in the session" — not "every game in the entire library".
+	const totalPossibleSwipes = $derived(memberCount * sessionCatalog.length);
 	const sessionPct = $derived(
 		totalPossibleSwipes === 0
 			? 0
@@ -80,7 +84,9 @@
 			if (!byGame.has(s.gameId)) byGame.set(s.gameId, []);
 			byGame.get(s.gameId)!.push(s);
 		}
-		return games.catalog.map((g) => {
+		// Iterate the filtered session catalog (not the full library) so excluded
+		// games + games trimmed by complexity/play-time/fit don't show as rows.
+		return sessionCatalog.map((g) => {
 			const recs = byGame.get(g.id) ?? [];
 			const likes = recs.filter((r) => r.direction === 'like').length;
 			const passes = recs.filter((r) => r.direction === 'pass').length;
@@ -171,6 +177,11 @@
 		joinGroup(id);
 		addPlayerOpen = false;
 	}
+
+	function confirmRemoveMember(id: string, name: string) {
+		if (!confirm(`Remove ${name} from this session?`)) return;
+		removeMember(id);
+	}
 </script>
 
 {#if !group.current}
@@ -213,8 +224,12 @@
 					<div class="metric">
 						<span class="metric__label">Games</span>
 						<div class="metric__value">
-							<strong>{games.catalog.length}</strong>
-							<span class="metric__suffix">in pool</span>
+							<strong>{sessionCatalog.length}</strong>
+							<span class="metric__suffix">
+								{sessionCatalog.length === games.catalog.length
+									? 'in pool'
+									: `of ${games.catalog.length} (filtered)`}
+							</span>
 						</div>
 					</div>
 				</Card>
@@ -267,6 +282,21 @@
 							<span class="tag" class:tag--idle={!hasVoted}>
 								{hasVoted ? 'Voting' : 'Idle'}
 							</span>
+							{#if profile.isAdmin && !isMe}
+								<button
+									type="button"
+									class="player__remove"
+									aria-label="Remove {d.name} from this session"
+									title="Remove {d.name}"
+									onclick={() => confirmRemoveMember(id, d.name)}
+								>
+									<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor"
+										stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+										<path d="M18 6L6 18" />
+										<path d="M6 6l12 12" />
+									</svg>
+								</button>
+							{/if}
 						</li>
 					{/each}
 				</ul>
@@ -276,8 +306,7 @@
 						type="button"
 						class="add-player"
 						onclick={() => (addPlayerOpen = true)}
-						disabled={availableSeeds.length === 0}
-						title={availableSeeds.length === 0 ? 'All roster members already added' : 'Add another player to this session'}
+						title="Add another player to this session"
 					>
 						<span aria-hidden="true">+</span>
 						Add Player
@@ -396,7 +425,7 @@
 					<Button
 						variant="primary"
 						onclick={() => goto('/swipe')}
-						disabled={games.catalog.length === 0}
+						disabled={sessionCatalog.length === 0}
 					>
 						{topMatch ? `Start with ${topMatch.name}` : 'Start swiping'}
 					</Button>
@@ -727,6 +756,34 @@
 	.tag--idle {
 		background: var(--surface-tertiary);
 		color: var(--foreground-tertiary);
+	}
+	.player__remove {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 22px;
+		height: 22px;
+		border: 0;
+		border-radius: var(--radius-pill);
+		background: transparent;
+		color: var(--foreground-tertiary);
+		cursor: pointer;
+		flex: 0 0 auto;
+		opacity: 0;
+		transition:
+			opacity 0.15s ease,
+			background 0.15s ease,
+			color 0.15s ease;
+	}
+	.player:hover .player__remove,
+	.player:focus-within .player__remove {
+		opacity: 0.55;
+	}
+	.player__remove:hover,
+	.player__remove:focus-visible {
+		opacity: 1;
+		background: var(--surface-tertiary);
+		color: var(--danger);
 	}
 	.add-player {
 		display: flex;

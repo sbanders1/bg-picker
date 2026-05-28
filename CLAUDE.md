@@ -20,7 +20,7 @@ Working SvelteKit app under active development. **GameMatch** — Tinder-style b
 - **BGG proxy** at `src/routes/api/bgg/[endpoint]/+server.ts` — server-side XML parsing via `fast-xml-parser`, 202 retry, 503 backoff, token-bucket rate limiter. See `docs/bgg-api.md` for gotchas.
 - **Design source-of-truth**: `bg-picker.pen` at the repo root. Keep using the Pencil MCP for any updates.
 
-Run `npm run dev` (dev server, may use 5173 or next free port), `npm run check` (type check — must pass cleanly), `npm run build` (production build).
+Run `npm run dev:lan` (binds to 0.0.0.0 on port 5180 for LAN multiplayer — the default for this repo), `npm run check` (type check — must pass cleanly), `npm run build` (production build). Plain `npm run dev` is localhost-only and only useful for solo single-device work; assume `dev:lan` unless told otherwise.
 
 **Known issue**: BGG XML API is currently returning HTTP 401 to this machine's IP — likely an upstream rate-limit/IP-block. The proxy code is correct and surfaces failures as `{ error: "BGG 401: ..." }`. Test from a different network when needed.
 

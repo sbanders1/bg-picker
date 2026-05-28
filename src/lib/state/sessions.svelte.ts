@@ -1,9 +1,8 @@
 import type { Session } from '$lib/types';
-import { group, clearGroup } from './group.svelte';
+import { fetchServerState, postAction } from '$lib/sync';
+import { group } from './group.svelte';
 import { games } from './games.svelte';
-import { resetAll as resetSwipes } from './swipes.svelte';
-
-const KEY = 'gm.sessions';
+import { swipes } from './swipes.svelte';
 
 export const sessions = $state<{
 	closed: Session[];
@@ -12,13 +11,9 @@ export const sessions = $state<{
 });
 
 /**
- * Snapshot the current group + catalog + matches into a closed session, then
- * reset the live swipe + group state so a new session can begin.
- *
- * Returns the archived session id, or null if there's no active group to close.
- *
- * Catalog (games) is intentionally NOT cleared — hosts usually keep their library
- * across nights; a separate clearGames() exists for that.
+ * Snapshot the current group + matches + catalog into a closed Session, then
+ * reset the live group + swipes. The server is the source of truth so this
+ * just mirrors the equivalent server action locally for optimistic UI.
  */
 export function closeSession(): string | null {
 	const g = group.current;
@@ -36,32 +31,23 @@ export function closeSession(): string | null {
 		winnerGameId
 	};
 	sessions.closed.unshift(archived);
-	persist();
-
-	// Reset live state for the next session. We keep games.catalog by design.
-	clearGroup();
-	resetSwipes();
+	group.current = null;
+	group.matches = [];
+	swipes.byProfile = {};
+	postAction({ type: 'closeSession' });
 	return archived.id;
 }
 
 export function clearAllSessions() {
 	sessions.closed = [];
-	if (typeof localStorage !== 'undefined') localStorage.removeItem(KEY);
+	postAction({ type: 'clearAllSessions' });
 }
 
-function persist() {
-	if (typeof localStorage === 'undefined') return;
-	localStorage.setItem(KEY, JSON.stringify({ closed: sessions.closed }));
+export function applyServerSnapshot(snap: { closed: Session[] }) {
+	sessions.closed = [...snap.closed];
 }
 
-export function init() {
-	if (typeof localStorage === 'undefined') return;
-	const raw = localStorage.getItem(KEY);
-	if (!raw) return;
-	try {
-		const parsed = JSON.parse(raw);
-		if (Array.isArray(parsed?.closed)) sessions.closed = parsed.closed;
-	} catch {
-		/* corrupt entry — ignore */
-	}
+export async function init() {
+	const snap = await fetchServerState();
+	if (snap) applyServerSnapshot(snap.sessions);
 }

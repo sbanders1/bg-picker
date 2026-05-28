@@ -4,27 +4,78 @@
 	import { page } from '$app/state';
 	import favicon from '$lib/assets/favicon.svg';
 	import { init as initProfile, profile, clearProfile } from '$lib/state/profile.svelte';
-	import { init as initGames, games } from '$lib/state/games.svelte';
-	import { init as initGroup } from '$lib/state/group.svelte';
-	import { init as initSwipes, getCurrentIndex } from '$lib/state/swipes.svelte';
+	import {
+		init as initGames,
+		games,
+		applyServerSnapshot as applyGames
+	} from '$lib/state/games.svelte';
+	import {
+		init as initGroup,
+		applyServerSnapshot as applyGroup
+	} from '$lib/state/group.svelte';
+	import {
+		init as initSwipes,
+		getCurrentIndex,
+		applyServerSnapshot as applySwipes
+	} from '$lib/state/swipes.svelte';
 	import { init as initSettings } from '$lib/state/settings.svelte';
-	import { init as initSessions } from '$lib/state/sessions.svelte';
+	import {
+		init as initSessions,
+		applyServerSnapshot as applySessions
+	} from '$lib/state/sessions.svelte';
+	import {
+		init as initCustomProfiles,
+		applyServerSnapshot as applyCustomProfiles
+	} from '$lib/state/customProfiles.svelte';
+	import { fetchServerState } from '$lib/sync';
 	import { profileById, initialsOf } from '$lib/profiles';
 	import { goto } from '$app/navigation';
 
 	let { children } = $props();
 
-	// Hydrate state from localStorage exactly once on mount. We use onMount (not
-	// $effect) per project rule: $effect is reserved for genuine outside-world side
-	// effects. initGroup runs BEFORE initProfile so the heal-check inside initProfile
-	// sees the current group correctly.
+	/** Refresh every shared (server-side) slice from one snapshot. */
+	async function syncFromServer() {
+		const snap = await fetchServerState();
+		if (!snap) return;
+		applyCustomProfiles(snap.customProfiles);
+		applyGames(snap.games.catalog);
+		applyGroup(snap.group);
+		applySwipes(snap.swipes);
+		applySessions(snap.sessions);
+	}
+
+	let eventSource: EventSource | null = null;
+
 	onMount(() => {
-		initSettings();
-		initGames();
-		initGroup();
-		initProfile();
-		initSwipes();
-		initSessions();
+		// Shared state lives on the server — hydrate everything from one snapshot
+		// (ordered so initProfile's heal-check sees the populated group).
+		(async () => {
+			await initCustomProfiles();
+			await initGames();
+			await initGroup();
+			await initSwipes();
+			await initSessions();
+			// Local-only slices (per-device): settings + profile last so the profile
+			// heal sees the already-loaded group state.
+			initSettings();
+			initProfile();
+		})();
+
+		// Live multiplayer sync via Server-Sent Events. Every action on any client
+		// triggers a "stateChanged" event from the server; we refetch the full
+		// snapshot. Cheap on LAN, simpler than diff-based sync.
+		if (typeof window !== 'undefined' && 'EventSource' in window) {
+			eventSource = new EventSource('/api/sync');
+			eventSource.addEventListener('stateChanged', () => {
+				void syncFromServer();
+			});
+			// Auto-reconnect is built into EventSource; nothing to do on error here.
+		}
+
+		return () => {
+			if (eventSource) eventSource.close();
+			eventSource = null;
+		};
 	});
 
 	const path = $derived(page.url.pathname);

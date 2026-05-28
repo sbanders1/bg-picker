@@ -18,28 +18,37 @@ export type SeedProfile = {
 
 export const SEED_PROFILES: SeedProfile[] = [
 	{
-		id: 'alex',
-		name: 'Alex Rivera',
-		initial: 'AR',
+		id: 'blake',
+		name: 'Blake Anderson',
+		initial: 'BA',
 		bg: 'var(--decor-peach)',
 		fg: '#B85C4A',
 		isAdmin: true
-	},
-	{ id: 'sam', name: 'Sam Brooks', initial: 'SB', bg: 'var(--decor-mint)', fg: '#3A8A5C' }
+	}
 ];
 
 const byId: Record<string, SeedProfile> = Object.fromEntries(
 	SEED_PROFILES.map((p) => [p.id, p])
 );
 
-/** Look up a profile by id. Returns undefined for unknown ids. */
+// Custom profiles live in their own runes module; importing here would create a
+// circular dep if a customProfile imports profileById. Resolve by lazy-importing
+// inside profileById/nameOf via globalThis (cheap; runs on every call).
+type CustomStore = { items: SeedProfile[] };
+function customStore(): CustomStore | undefined {
+	const w = globalThis as unknown as { __gmCustomProfiles?: CustomStore };
+	return w.__gmCustomProfiles;
+}
+
+/** Look up a profile by id (seed roster or custom-added). Undefined for unknown ids. */
 export function profileById(id: string): SeedProfile | undefined {
-	return byId[id];
+	if (byId[id]) return byId[id];
+	return customStore()?.items.find((p) => p.id === id);
 }
 
 /** Display name for a profileId, with a graceful fallback. */
 export function nameOf(id: string, fallback = 'Player'): string {
-	return byId[id]?.name ?? fallback;
+	return profileById(id)?.name ?? fallback;
 }
 
 /**

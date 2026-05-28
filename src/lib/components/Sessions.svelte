@@ -1,13 +1,16 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { profile } from '$lib/state/profile.svelte';
-	import { group, joinGroup } from '$lib/state/group.svelte';
+	import { group } from '$lib/state/group.svelte';
 	import { games } from '$lib/state/games.svelte';
 	import { getAllHistory } from '$lib/state/swipes.svelte';
 	import { sessions, closeSession } from '$lib/state/sessions.svelte';
 	import { profileById } from '$lib/profiles';
 	import Button from './Button.svelte';
 	import Card from './Card.svelte';
+	import NewSessionModal from './NewSessionModal.svelte';
+
+	let newSessionOpen = $state(false);
 
 	// Sessions is host-only.
 	$effect(() => {
@@ -69,20 +72,8 @@
 	}
 
 	function startNewSession() {
-		// "Only one can be active at a time" — guard by offering to close first.
-		if (activeSession) {
-			if (
-				!confirm(
-					`Close "${activeSession.name}" and start a new session? Current swipes will reset; catalog stays.`
-				)
-			) {
-				return;
-			}
-			closeSession();
-		}
-		joinGroup(profile.id);
-		// Host lands on catalog if it's empty (so they can curate), otherwise straight to swiping.
-		goto(games.catalog.length === 0 ? '/admin' : '/swipe');
+		// Open the New Session modal — it owns naming, roster, and filter config.
+		newSessionOpen = true;
 	}
 
 	function winnerName(winnerId?: number, gameIds?: number[]): string {
@@ -123,6 +114,8 @@
 			</Button>
 		</div>
 	</header>
+
+	<NewSessionModal bind:open={newSessionOpen} />
 
 	<section class="metrics">
 		<Card padding={20}>
