@@ -55,6 +55,10 @@
 
   /* Chrome */
   --nav-height: 72px;
+
+  /* Breakpoints — single source of truth for any future media queries. */
+  --bp-mobile: 720px;
+  --bp-tablet: 1024px;
 }
 
 * { box-sizing: border-box; }
@@ -69,6 +73,21 @@ html, body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Stop iOS from auto-inflating font sizes when rotating into landscape. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Touch / mobile defaults — applied globally so future mobile screens inherit
+ * the right behavior without re-spelling it per component. */
+button,
+a {
+  /* Kill the default blue tap highlight on iOS; let our own :active/:focus do the talking. */
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  /* Pan/zoom default is fine; this just makes taps feel immediate. */
+  touch-action: manipulation;
 }
 
 h1, h2, h3, h4, h5, h6 {

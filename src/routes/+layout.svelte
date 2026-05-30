@@ -19,6 +19,7 @@
 		applyServerSnapshot as applySwipes
 	} from '$lib/state/swipes.svelte';
 	import { init as initSettings } from '$lib/state/settings.svelte';
+	import { init as initViewport } from '$lib/state/viewport.svelte';
 	import {
 		init as initSessions,
 		applyServerSnapshot as applySessions
@@ -59,6 +60,7 @@
 			// heal sees the already-loaded group state.
 			initSettings();
 			initProfile();
+			initViewport();
 		})();
 
 		// Live multiplayer sync via Server-Sent Events. Every action on any client

@@ -1191,22 +1191,240 @@
   },
   "group": {
     "current": {
-      "id": "g-mpoufzmu",
-      "name": "Wednesday Game Night",
+      "id": "g-mpowjqqf",
+      "name": "Wednesday Game Night – May 27",
       "memberIds": [
+        "blake",
         "c-mpoufzk0-abfb",
-        "c-mpouzuo3-8ewz",
-        "c-mpov03l5-ya6w",
-        "blake"
+        "c-mpouzuo3-8ewz"
       ],
-      "startedAt": 1779933491238
+      "startedAt": 1779937025559,
+      "filters": {
+        "complexityMin": "light",
+        "complexityMax": "medium-light",
+        "playTimeMin": 60,
+        "playTimeMax": 90,
+        "fitPlayers": 3
+      }
     },
-    "matches": []
+    "matches": [
+      {
+        "gameId": 266192,
+        "at": 1779937200640,
+        "profileIds": [
+          "blake",
+          "c-mpoufzk0-abfb",
+          "c-mpouzuo3-8ewz"
+        ]
+      }
+    ]
   },
   "swipes": {
-    "byProfile": {}
+    "byProfile": {
+      "blake": {
+        "history": [
+          {
+            "gameId": 266192,
+            "direction": "like",
+            "at": 1779937035198,
+            "profileId": "blake"
+          },
+          {
+            "gameId": 9209,
+            "direction": "pass",
+            "at": 1779937037240,
+            "profileId": "blake"
+          },
+          {
+            "gameId": 380135,
+            "direction": "pass",
+            "at": 1779937039330,
+            "profileId": "blake"
+          }
+        ],
+        "currentIndex": 3
+      },
+      "c-mpouzuo3-8ewz": {
+        "history": [
+          {
+            "gameId": 266192,
+            "direction": "like",
+            "at": 1779937170238,
+            "profileId": "c-mpouzuo3-8ewz"
+          },
+          {
+            "gameId": 9209,
+            "direction": "like",
+            "at": 1779937173505,
+            "profileId": "c-mpouzuo3-8ewz"
+          },
+          {
+            "gameId": 380135,
+            "direction": "pass",
+            "at": 1779937177838,
+            "profileId": "c-mpouzuo3-8ewz"
+          }
+        ],
+        "currentIndex": 3
+      },
+      "c-mpoufzk0-abfb": {
+        "history": [
+          {
+            "gameId": 266192,
+            "direction": "like",
+            "at": 1779937200744,
+            "profileId": "c-mpoufzk0-abfb"
+          },
+          {
+            "gameId": 9209,
+            "direction": "pass",
+            "at": 1779937209242,
+            "profileId": "c-mpoufzk0-abfb"
+          },
+          {
+            "gameId": 380135,
+            "direction": "like",
+            "at": 1779937210676,
+            "profileId": "c-mpoufzk0-abfb"
+          }
+        ],
+        "currentIndex": 3
+      }
+    }
   },
   "sessions": {
-    "closed": []
+    "closed": [
+      {
+        "id": "s-mpowjqqa",
+        "name": "Wednesday Game Night – May 27",
+        "startedAt": 1779936457138,
+        "endedAt": 1779937025554,
+        "memberIds": [
+          "blake",
+          "c-mpoufzk0-abfb",
+          "c-mpouzuo3-8ewz"
+        ],
+        "gameIds": [
+          13,
+          266192,
+          9209,
+          230802,
+          178900,
+          30549,
+          68448,
+          822,
+          148228,
+          174430,
+          162886,
+          167791,
+          224517,
+          199792,
+          36218,
+          296108,
+          244521,
+          312484,
+          410201,
+          436126,
+          197435,
+          286096,
+          120677,
+          295947,
+          123540,
+          380135,
+          338960,
+          305682,
+          416831,
+          169786,
+          379078,
+          422780
+        ],
+        "matches": [
+          {
+            "gameId": 230802,
+            "at": 1779936641261,
+            "profileIds": [
+              "blake",
+              "c-mpoufzk0-abfb",
+              "c-mpouzuo3-8ewz"
+            ]
+          },
+          {
+            "gameId": 148228,
+            "at": 1779936659829,
+            "profileIds": [
+              "blake",
+              "c-mpoufzk0-abfb",
+              "c-mpouzuo3-8ewz"
+            ]
+          },
+          {
+            "gameId": 197435,
+            "at": 1779936672129,
+            "profileIds": [
+              "blake",
+              "c-mpoufzk0-abfb",
+              "c-mpouzuo3-8ewz"
+            ]
+          },
+          {
+            "gameId": 123540,
+            "at": 1779936676165,
+            "profileIds": [
+              "blake",
+              "c-mpoufzk0-abfb",
+              "c-mpouzuo3-8ewz"
+            ]
+          }
+        ],
+        "winnerGameId": 230802
+      },
+      {
+        "id": "s-mpow743b",
+        "name": "Wednesday Game Night",
+        "startedAt": 1779933491238,
+        "endedAt": 1779936436343,
+        "memberIds": [
+          "c-mpoufzk0-abfb",
+          "c-mpouzuo3-8ewz",
+          "c-mpov03l5-ya6w",
+          "blake"
+        ],
+        "gameIds": [
+          13,
+          266192,
+          9209,
+          230802,
+          178900,
+          30549,
+          68448,
+          822,
+          148228,
+          174430,
+          162886,
+          167791,
+          224517,
+          199792,
+          36218,
+          296108,
+          244521,
+          312484,
+          410201,
+          436126,
+          197435,
+          286096,
+          120677,
+          295947,
+          123540,
+          380135,
+          338960,
+          305682,
+          416831,
+          169786,
+          379078,
+          422780
+        ],
+        "matches": []
+      }
+    ]
   }
 }

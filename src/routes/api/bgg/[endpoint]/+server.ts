@@ -1,5 +1,6 @@
 import type { RequestHandler } from './$types';
 import { XMLParser } from 'fast-xml-parser';
+import { env } from '$env/dynamic/private';
 import type { BggSearchResult, Game, Rank } from '$lib/types';
 
 const BGG = 'https://boardgamegeek.com/xmlapi2';
@@ -7,6 +8,21 @@ const UA = 'GameMatch/0.1 (https://github.com/sbanders1/bg-picker)';
 const RETRY_DELAY_MS = 5000;
 const MAX_RETRIES = 3;
 const RATE_INTERVAL_MS = 600; // ~100 req/min, well under BGG community guidance
+
+// Auth token (from .env, server-side only — never reaches the client bundle).
+// BGG's XML API2 doesn't publicly document token auth; we send it as a standard
+// Bearer header. If BGG expects it elsewhere (cookie / query param), change only
+// authHeaders() below.
+const BGG_TOKEN = env.BGG_API_TOKEN?.trim();
+
+function authHeaders(): Record<string, string> {
+	const headers: Record<string, string> = {
+		'User-Agent': UA,
+		Accept: 'application/xml,text/xml,*/*'
+	};
+	if (BGG_TOKEN) headers.Authorization = `Bearer ${BGG_TOKEN}`;
+	return headers;
+}
 
 let nextAllowed = 0;
 async function throttle() {
@@ -17,9 +33,7 @@ async function throttle() {
 
 async function fetchXml(url: string, attempt = 0): Promise<string> {
 	await throttle();
-	const res = await fetch(url, {
-		headers: { 'User-Agent': UA, Accept: 'application/xml,text/xml,*/*' }
-	});
+	const res = await fetch(url, { headers: authHeaders() });
 	if (res.status === 202) {
 		if (attempt >= MAX_RETRIES) throw new Error('BGG returned 202 after max retries');
 		await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
