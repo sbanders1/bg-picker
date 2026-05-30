@@ -11,7 +11,7 @@
  * Server-only: the "server" path segment keeps it out of the client bundle.
  * Not concurrency-safe at the file level — fine for a small LAN game night.
  */
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, renameSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { BggSearchResult, Game } from '$lib/types';
 
@@ -39,7 +39,14 @@ function load(): CacheShape {
 		const parsed = JSON.parse(readFileSync(CACHE_FILE, 'utf8')) as Partial<CacheShape>;
 		return { search: parsed.search ?? {}, things: parsed.things ?? {} };
 	} catch {
-		// Corrupt cache is non-fatal — start fresh; live calls will refill it.
+		// This file is meant to accumulate for the long haul — never silently throw
+		// it away. Preserve the unreadable copy for recovery, then start fresh.
+		// (Atomic writes below make reaching this path very unlikely.)
+		try {
+			renameSync(CACHE_FILE, `${CACHE_FILE}.corrupt-${Date.now()}`);
+		} catch {
+			/* couldn't set aside; next persist will overwrite */
+		}
 		return emptyCache();
 	}
 }
@@ -47,19 +54,38 @@ function load(): CacheShape {
 const cache: CacheShape = load();
 
 // Persist is debounced so a burst of writes (e.g. a batch import) collapses into
-// a single disk write. Synchronous writeFileSync matches the app-state module.
+// a single disk write.
 let persistTimer: ReturnType<typeof setTimeout> | undefined;
+
+// Atomic write: serialize to a temp file, then rename over the real one. rename()
+// is atomic on the same filesystem, so a crash mid-write can never leave a
+// truncated/corrupt cache — readers see either the old file or the complete new
+// one. This is what makes indefinite, never-lose-it accumulation safe.
+function flush() {
+	persistTimer = undefined;
+	try {
+		const tmp = `${CACHE_FILE}.tmp`;
+		writeFileSync(tmp, JSON.stringify(cache), 'utf8');
+		renameSync(tmp, CACHE_FILE);
+	} catch {
+		/* best-effort; data stays in memory and retries on the next write */
+	}
+}
+
 function schedulePersist() {
 	if (persistTimer) return;
-	persistTimer = setTimeout(() => {
-		persistTimer = undefined;
-		try {
-			writeFileSync(CACHE_FILE, JSON.stringify(cache), 'utf8');
-		} catch {
-			/* best-effort cache; ignore disk errors */
-		}
-	}, 250);
+	persistTimer = setTimeout(flush, 250);
 }
+
+// Land the last debounced batch on a graceful shutdown. (Doesn't fire on an
+// abrupt SIGKILL, but atomic writes mean the worst case there is losing only the
+// most recent ~250ms of entries, which simply re-cache on next search.)
+process.once('beforeExit', () => {
+	if (persistTimer) {
+		clearTimeout(persistTimer);
+		flush();
+	}
+});
 
 /** Cache key for a search. Normalizes query case/whitespace; folds in type + exact. */
 export function searchKey(query: string, type: string, exact: boolean): string {
