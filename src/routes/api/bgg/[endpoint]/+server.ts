@@ -1,6 +1,13 @@
 import type { RequestHandler } from './$types';
 import { XMLParser } from 'fast-xml-parser';
 import { env } from '$env/dynamic/private';
+import {
+	searchKey,
+	readSearch,
+	writeSearch,
+	readThing,
+	writeThing
+} from '$lib/server/bgg-cache';
 import type { BggSearchResult, Game, Rank } from '$lib/types';
 
 const BGG = 'https://boardgamegeek.com/xmlapi2';
@@ -147,6 +154,12 @@ function json(data: unknown, status = 200): Response {
 	});
 }
 
+/** Order games to match the requested id list, dropping any we couldn't resolve. */
+function orderByIds(ids: string[], games: Game[]): Game[] {
+	const byId = new Map(games.map((g) => [String(g.id), g]));
+	return ids.map((id) => byId.get(id)).filter((g): g is Game => g != null);
+}
+
 export const GET: RequestHandler = async ({ params, url }) => {
 	const endpoint = params.endpoint;
 	const sp = url.searchParams;
@@ -155,18 +168,69 @@ export const GET: RequestHandler = async ({ params, url }) => {
 			const query = sp.get('query')?.trim();
 			if (!query) return json({ error: 'missing query' }, 400);
 			const type = sp.get('type') ?? 'boardgame';
-			const exact = sp.get('exact') === '1' ? '&exact=1' : '';
-			const xml = await fetchXml(
-				`${BGG}/search?query=${encodeURIComponent(query)}&type=${encodeURIComponent(type)}${exact}`
-			);
-			return json({ results: parseSearch(xml) });
+			const exact = sp.get('exact') === '1';
+			const key = searchKey(query, type, exact);
+
+			// Serve fresh cache without touching BGG.
+			const cached = readSearch(key);
+			if (cached?.fresh) return json({ results: cached.results, cached: true });
+
+			try {
+				const xml = await fetchXml(
+					`${BGG}/search?query=${encodeURIComponent(query)}&type=${encodeURIComponent(type)}${
+						exact ? '&exact=1' : ''
+					}`
+				);
+				const results = parseSearch(xml);
+				writeSearch(key, results);
+				return json({ results });
+			} catch (err) {
+				// BGG failed — fall back to stale cache if we ever fetched this query.
+				if (cached) return json({ results: cached.results, cached: true, stale: true });
+				throw err;
+			}
 		}
 		if (endpoint === 'thing') {
-			const id = sp.get('id')?.trim();
-			if (!id) return json({ error: 'missing id' }, 400);
-			const stats = sp.get('stats') !== '0' ? '&stats=1' : '';
-			const xml = await fetchXml(`${BGG}/thing?id=${encodeURIComponent(id)}${stats}`);
-			return json({ games: parseThing(xml) });
+			const idParam = sp.get('id')?.trim();
+			if (!idParam) return json({ error: 'missing id' }, 400);
+			const stats = sp.get('stats') !== '0';
+			const ids = idParam
+				.split(',')
+				.map((s) => s.trim())
+				.filter(Boolean);
+
+			// Split requested ids into fresh-cached vs. needs-fetching.
+			const fresh: Game[] = [];
+			const missing: string[] = [];
+			for (const id of ids) {
+				const c = readThing(id);
+				if (c?.fresh) fresh.push(c.game);
+				else missing.push(id);
+			}
+
+			if (missing.length === 0) {
+				return json({ games: orderByIds(ids, fresh), cached: true });
+			}
+
+			try {
+				// Batch-fetch only the ids we don't have fresh.
+				const xml = await fetchXml(
+					`${BGG}/thing?id=${encodeURIComponent(missing.join(','))}${stats ? '&stats=1' : ''}`
+				);
+				const fetched = parseThing(xml);
+				for (const g of fetched) writeThing(g);
+				return json({ games: orderByIds(ids, [...fresh, ...fetched]) });
+			} catch (err) {
+				// BGG failed — serve any stale entries we have for the missing ids.
+				const stale: Game[] = [];
+				for (const id of missing) {
+					const c = readThing(id);
+					if (c) stale.push(c.game);
+				}
+				const games = orderByIds(ids, [...fresh, ...stale]);
+				if (games.length > 0) return json({ games, cached: true, stale: true });
+				throw err;
+			}
 		}
 		return json({ error: `unknown endpoint '${endpoint}' (use search or thing)` }, 404);
 	} catch (err) {

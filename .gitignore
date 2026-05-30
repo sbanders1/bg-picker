@@ -24,3 +24,6 @@ vite.config.ts.timestamp-*
 
 # Claude Code — personal/local config, never commit
 .claude/settings.local.json
+
+# BGG response cache — regenerable, server-side only
+.bgg-cache.json
