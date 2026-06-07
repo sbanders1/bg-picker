@@ -21,6 +21,13 @@
         "initial": "JA",
         "bg": "var(--decor-lavender)",
         "fg": "#7B4FA8"
+      },
+      {
+        "id": "c-mpw28ja7-bb45",
+        "name": "Achim",
+        "initial": "AC",
+        "bg": "var(--decor-cyan)",
+        "fg": "#3F8BA0"
       }
     ]
   },
@@ -3142,727 +3149,384 @@
   },
   "group": {
     "current": {
-      "id": "g-mpstm2ni",
-      "name": "Saturday Game Night – May 30",
+      "id": "g-mpw2znw9",
+      "name": "Monday Game Night – Jun 1",
       "memberIds": [
         "blake",
-        "c-mpoufzk0-abfb"
+        "c-mpw28ja7-bb45"
       ],
-      "startedAt": 1780173960174,
+      "startedAt": 1780371109305,
       "filters": {
-        "complexityMin": "light",
-        "complexityMax": "heavy",
-        "playTimeMin": 15,
-        "playTimeMax": 140
+        "complexityMin": "medium",
+        "complexityMax": "medium",
+        "playTimeMin": 0,
+        "playTimeMax": 45,
+        "fitPlayers": 2
       }
     },
     "matches": [
       {
-        "gameId": 296108,
-        "at": 1780174326327,
+        "gameId": 393892,
+        "at": 1780370011081,
         "profileIds": [
           "blake",
-          "c-mpoufzk0-abfb"
+          "c-mpw28ja7-bb45"
         ]
       },
       {
-        "gameId": 286096,
-        "at": 1780174331462,
+        "gameId": 447941,
+        "at": 1780370023644,
         "profileIds": [
           "blake",
-          "c-mpoufzk0-abfb"
-        ]
-      },
-      {
-        "gameId": 422780,
-        "at": 1780174333356,
-        "profileIds": [
-          "blake",
-          "c-mpoufzk0-abfb"
-        ]
-      },
-      {
-        "gameId": 244521,
-        "at": 1780174336354,
-        "profileIds": [
-          "blake",
-          "c-mpoufzk0-abfb"
-        ]
-      },
-      {
-        "gameId": 312484,
-        "at": 1780174338636,
-        "profileIds": [
-          "blake",
-          "c-mpoufzk0-abfb"
-        ]
-      },
-      {
-        "gameId": 68448,
-        "at": 1780174369486,
-        "profileIds": [
-          "blake",
-          "c-mpoufzk0-abfb"
-        ]
-      },
-      {
-        "gameId": 128621,
-        "at": 1780174373384,
-        "profileIds": [
-          "blake",
-          "c-mpoufzk0-abfb"
-        ]
-      },
-      {
-        "gameId": 308762,
-        "at": 1780174396743,
-        "profileIds": [
-          "blake",
-          "c-mpoufzk0-abfb"
+          "c-mpw28ja7-bb45"
         ]
       }
     ]
   },
   "swipes": {
     "byProfile": {
-      "c-mpoufzk0-abfb": {
-        "history": [
-          {
-            "gameId": 266192,
-            "direction": "pass",
-            "at": 1780174000080,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 296108,
-            "direction": "like",
-            "at": 1780174002420,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 167791,
-            "direction": "like",
-            "at": 1780174003854,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 286096,
-            "direction": "like",
-            "at": 1780174012466,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 422780,
-            "direction": "like",
-            "at": 1780174018824,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 244521,
-            "direction": "like",
-            "at": 1780174020380,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 312484,
-            "direction": "like",
-            "at": 1780174022080,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 266507,
-            "direction": "pass",
-            "at": 1780174029672,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 383010,
-            "direction": "pass",
-            "at": 1780174031809,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 246192,
-            "direction": "like",
-            "at": 1780174035700,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 410201,
-            "direction": "pass",
-            "at": 1780174037189,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 305682,
-            "direction": "pass",
-            "at": 1780174038464,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 393892,
-            "direction": "pass",
-            "at": 1780174039537,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 436126,
-            "direction": "pass",
-            "at": 1780174041025,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 6187,
-            "direction": "pass",
-            "at": 1780174043688,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 230802,
-            "direction": "like",
-            "at": 1780174045121,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 268201,
-            "direction": "pass",
-            "at": 1780174047814,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 13,
-            "direction": "pass",
-            "at": 1780174049115,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 68448,
-            "direction": "like",
-            "at": 1780174051470,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 128621,
-            "direction": "like",
-            "at": 1780174053808,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 169786,
-            "direction": "pass",
-            "at": 1780174055361,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 379078,
-            "direction": "pass",
-            "at": 1780174056901,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 295947,
-            "direction": "pass",
-            "at": 1780174058228,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 199792,
-            "direction": "like",
-            "at": 1780174061300,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 123540,
-            "direction": "like",
-            "at": 1780174068177,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 425005,
-            "direction": "like",
-            "at": 1780174070805,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 431038,
-            "direction": "like",
-            "at": 1780174075711,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 36218,
-            "direction": "like",
-            "at": 1780174081064,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 380135,
-            "direction": "like",
-            "at": 1780174083489,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 125618,
-            "direction": "pass",
-            "at": 1780174084955,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 200680,
-            "direction": "pass",
-            "at": 1780174086593,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 417073,
-            "direction": "like",
-            "at": 1780174090996,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 140934,
-            "direction": "pass",
-            "at": 1780174093251,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 255683,
-            "direction": "pass",
-            "at": 1780174096834,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 192153,
-            "direction": "pass",
-            "at": 1780174099940,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 308762,
-            "direction": "like",
-            "at": 1780174102363,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 162886,
-            "direction": "like",
-            "at": 1780174105436,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 358557,
-            "direction": "like",
-            "at": 1780174107579,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 367498,
-            "direction": "pass",
-            "at": 1780174109492,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 348406,
-            "direction": "pass",
-            "at": 1780174111271,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 194594,
-            "direction": "pass",
-            "at": 1780174114755,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 343562,
-            "direction": "pass",
-            "at": 1780174117213,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 165283,
-            "direction": "pass",
-            "at": 1780174118952,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 181304,
-            "direction": "pass",
-            "at": 1780174121205,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 95607,
-            "direction": "pass",
-            "at": 1780174122639,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 415513,
-            "direction": "like",
-            "at": 1780174125193,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 126443,
-            "direction": "pass",
-            "at": 1780174129602,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 290236,
-            "direction": "like",
-            "at": 1780174147180,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 271320,
-            "direction": "like",
-            "at": 1780174149104,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 300327,
-            "direction": "like",
-            "at": 1780174151006,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 2381,
-            "direction": "pass",
-            "at": 1780174152483,
-            "profileId": "c-mpoufzk0-abfb"
-          },
-          {
-            "gameId": 342019,
-            "direction": "pass",
-            "at": 1780174154577,
-            "profileId": "c-mpoufzk0-abfb"
-          }
-        ],
-        "currentIndex": 52
-      },
       "blake": {
         "history": [
           {
-            "gameId": 266192,
-            "direction": "like",
-            "at": 1780174325401,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 296108,
-            "direction": "like",
-            "at": 1780174326335,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 167791,
-            "direction": "pass",
-            "at": 1780174330202,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 286096,
-            "direction": "like",
-            "at": 1780174331465,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 422780,
-            "direction": "like",
-            "at": 1780174333361,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 244521,
-            "direction": "like",
-            "at": 1780174336361,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 312484,
-            "direction": "like",
-            "at": 1780174338640,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 266507,
-            "direction": "pass",
-            "at": 1780174341011,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 383010,
-            "direction": "pass",
-            "at": 1780174341833,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 246192,
-            "direction": "pass",
-            "at": 1780174342890,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 410201,
-            "direction": "like",
-            "at": 1780174344147,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 305682,
-            "direction": "pass",
-            "at": 1780174345508,
-            "profileId": "blake"
-          },
-          {
             "gameId": 393892,
-            "direction": "pass",
-            "at": 1780174346066,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 436126,
             "direction": "like",
-            "at": 1780174347050,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 6187,
-            "direction": "like",
-            "at": 1780174364556,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 230802,
-            "direction": "pass",
-            "at": 1780174365788,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 268201,
-            "direction": "pass",
-            "at": 1780174366655,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 13,
-            "direction": "pass",
-            "at": 1780174367521,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 68448,
-            "direction": "like",
-            "at": 1780174369489,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 128621,
-            "direction": "like",
-            "at": 1780174373389,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 169786,
-            "direction": "pass",
-            "at": 1780174375709,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 379078,
-            "direction": "pass",
-            "at": 1780174376885,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 295947,
-            "direction": "pass",
-            "at": 1780174377950,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 199792,
-            "direction": "pass",
-            "at": 1780174378861,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 123540,
-            "direction": "pass",
-            "at": 1780174380078,
+            "at": 1780371116494,
             "profileId": "blake"
           },
           {
             "gameId": 425005,
-            "direction": "pass",
-            "at": 1780174380811,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 431038,
-            "direction": "pass",
-            "at": 1780174381514,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 36218,
-            "direction": "pass",
-            "at": 1780174385375,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 380135,
-            "direction": "pass",
-            "at": 1780174387023,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 125618,
-            "direction": "pass",
-            "at": 1780174388186,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 200680,
-            "direction": "pass",
-            "at": 1780174389687,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 417073,
-            "direction": "pass",
-            "at": 1780174390860,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 140934,
-            "direction": "pass",
-            "at": 1780174392016,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 255683,
             "direction": "like",
-            "at": 1780174393347,
+            "at": 1780371116773,
             "profileId": "blake"
           },
           {
-            "gameId": 192153,
-            "direction": "pass",
-            "at": 1780174395352,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 308762,
+            "gameId": 447941,
             "direction": "like",
-            "at": 1780174396749,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 162886,
-            "direction": "pass",
-            "at": 1780174399206,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 358557,
-            "direction": "pass",
-            "at": 1780174400223,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 367498,
-            "direction": "pass",
-            "at": 1780174401322,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 348406,
-            "direction": "pass",
-            "at": 1780174404507,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 194594,
-            "direction": "like",
-            "at": 1780174406558,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 343562,
-            "direction": "like",
-            "at": 1780174407898,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 165283,
-            "direction": "pass",
-            "at": 1780174408706,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 181304,
-            "direction": "pass",
-            "at": 1780174410089,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 95607,
-            "direction": "pass",
-            "at": 1780174412039,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 415513,
-            "direction": "pass",
-            "at": 1780174413094,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 126443,
-            "direction": "like",
-            "at": 1780174415514,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 290236,
-            "direction": "pass",
-            "at": 1780174417462,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 271320,
-            "direction": "pass",
-            "at": 1780174428281,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 300327,
-            "direction": "pass",
-            "at": 1780174429284,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 2381,
-            "direction": "pass",
-            "at": 1780174430202,
-            "profileId": "blake"
-          },
-          {
-            "gameId": 342019,
-            "direction": "pass",
-            "at": 1780174430983,
+            "at": 1780371117110,
             "profileId": "blake"
           }
         ],
-        "currentIndex": 52
+        "currentIndex": 3
+      },
+      "c-mpw28ja7-bb45": {
+        "history": [
+          {
+            "gameId": 393892,
+            "direction": "like",
+            "at": 1780371119866,
+            "profileId": "c-mpw28ja7-bb45"
+          },
+          {
+            "gameId": 425005,
+            "direction": "pass",
+            "at": 1780371131585,
+            "profileId": "c-mpw28ja7-bb45"
+          },
+          {
+            "gameId": 447941,
+            "direction": "like",
+            "at": 1780371132377,
+            "profileId": "c-mpw28ja7-bb45"
+          }
+        ],
+        "currentIndex": 3
       }
     }
   },
   "sessions": {
     "closed": [
+      {
+        "id": "s-mpw2znw0",
+        "name": "Achim & Blake",
+        "startedAt": 1780370973870,
+        "endedAt": 1780371109296,
+        "memberIds": [
+          "blake",
+          "c-mpw28ja7-bb45"
+        ],
+        "gameIds": [
+          266192,
+          296108,
+          167791,
+          286096,
+          422780,
+          244521,
+          312484,
+          266507,
+          383010,
+          246192,
+          410201,
+          305682,
+          393892,
+          436126,
+          6187,
+          142503,
+          230802,
+          268201,
+          13,
+          68448,
+          128621,
+          169786,
+          379078,
+          295947,
+          120677,
+          310100,
+          199792,
+          123540,
+          425005,
+          431038,
+          36218,
+          338960,
+          380135,
+          295895,
+          125618,
+          200680,
+          397931,
+          417073,
+          140934,
+          255683,
+          192153,
+          308762,
+          162886,
+          358557,
+          2455,
+          367498,
+          348406,
+          194594,
+          343562,
+          165283,
+          181304,
+          95607,
+          415513,
+          184491,
+          126443,
+          290236,
+          271320,
+          300327,
+          2381,
+          342019,
+          447941
+        ],
+        "matches": []
+      },
+      {
+        "id": "s-mpw2wrdx",
+        "name": "Sunday Game Night – May 31",
+        "startedAt": 1780271301328,
+        "endedAt": 1780370973861,
+        "memberIds": [
+          "blake",
+          "c-mpoufzk0-abfb",
+          "c-mpov03l5-ya6w",
+          "c-mpouzuo3-8ewz",
+          "c-mpw28ja7-bb45"
+        ],
+        "gameIds": [
+          266192,
+          296108,
+          167791,
+          286096,
+          422780,
+          244521,
+          312484,
+          266507,
+          383010,
+          246192,
+          410201,
+          305682,
+          393892,
+          436126,
+          6187,
+          142503,
+          230802,
+          268201,
+          13,
+          68448,
+          128621,
+          169786,
+          379078,
+          295947,
+          120677,
+          310100,
+          199792,
+          123540,
+          425005,
+          431038,
+          36218,
+          338960,
+          380135,
+          295895,
+          125618,
+          200680,
+          397931,
+          417073,
+          140934,
+          255683,
+          192153,
+          308762,
+          162886,
+          358557,
+          2455,
+          367498,
+          348406,
+          194594,
+          343562,
+          165283,
+          181304,
+          95607,
+          415513,
+          184491,
+          126443,
+          290236,
+          271320,
+          300327,
+          2381,
+          342019,
+          447941
+        ],
+        "matches": []
+      },
+      {
+        "id": "s-mpufkfjp",
+        "name": "Saturday Game Night – May 30",
+        "startedAt": 1780173960174,
+        "endedAt": 1780271301301,
+        "memberIds": [
+          "blake",
+          "c-mpoufzk0-abfb",
+          "c-mpov03l5-ya6w"
+        ],
+        "gameIds": [
+          266192,
+          296108,
+          167791,
+          286096,
+          422780,
+          244521,
+          312484,
+          266507,
+          383010,
+          246192,
+          410201,
+          305682,
+          393892,
+          436126,
+          6187,
+          142503,
+          230802,
+          268201,
+          13,
+          68448,
+          128621,
+          169786,
+          379078,
+          295947,
+          120677,
+          310100,
+          199792,
+          123540,
+          425005,
+          431038,
+          36218,
+          338960,
+          380135,
+          295895,
+          125618,
+          200680,
+          397931,
+          417073,
+          140934,
+          255683,
+          192153,
+          308762,
+          162886,
+          358557,
+          2455,
+          367498,
+          348406,
+          194594,
+          343562,
+          165283,
+          181304,
+          95607,
+          415513,
+          184491,
+          126443,
+          290236,
+          271320,
+          300327,
+          2381,
+          342019,
+          447941
+        ],
+        "matches": [
+          {
+            "gameId": 296108,
+            "at": 1780174326327,
+            "profileIds": [
+              "blake",
+              "c-mpoufzk0-abfb"
+            ]
+          },
+          {
+            "gameId": 286096,
+            "at": 1780174331462,
+            "profileIds": [
+              "blake",
+              "c-mpoufzk0-abfb"
+            ]
+          },
+          {
+            "gameId": 422780,
+            "at": 1780174333356,
+            "profileIds": [
+              "blake",
+              "c-mpoufzk0-abfb"
+            ]
+          },
+          {
+            "gameId": 244521,
+            "at": 1780174336354,
+            "profileIds": [
+              "blake",
+              "c-mpoufzk0-abfb"
+            ]
+          },
+          {
+            "gameId": 312484,
+            "at": 1780174338636,
+            "profileIds": [
+              "blake",
+              "c-mpoufzk0-abfb"
+            ]
+          },
+          {
+            "gameId": 68448,
+            "at": 1780174369486,
+            "profileIds": [
+              "blake",
+              "c-mpoufzk0-abfb"
+            ]
+          },
+          {
+            "gameId": 128621,
+            "at": 1780174373384,
+            "profileIds": [
+              "blake",
+              "c-mpoufzk0-abfb"
+            ]
+          },
+          {
+            "gameId": 308762,
+            "at": 1780174396743,
+            "profileIds": [
+              "blake",
+              "c-mpoufzk0-abfb"
+            ]
+          }
+        ],
+        "winnerGameId": 296108
+      },
       {
         "id": "s-mpstm2n8",
         "name": "Saturday Game Night – May 30",
