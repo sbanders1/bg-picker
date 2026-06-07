@@ -90,7 +90,8 @@
 			const recs = byGame.get(g.id) ?? [];
 			const likes = recs.filter((r) => r.direction === 'like').length;
 			const passes = recs.filter((r) => r.direction === 'pass').length;
-			const voters = recs.map((r) => r.profileId);
+			// PLAYERS column shows only who voted *yes* on this game, not every voter.
+			const voters = recs.filter((r) => r.direction === 'like').map((r) => r.profileId);
 			const matched = memberCount > 0 && likes >= memberCount;
 			const stillVoting = recs.length < Math.max(1, memberCount);
 			return { game: g, likes, passes, voters, matched, stillVoting };
